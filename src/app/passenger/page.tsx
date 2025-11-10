@@ -3,7 +3,7 @@ import { PassengerDashboard } from "@/components/passenger-dashboard";
 
 export default function PassengerPage() {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-muted/40">
             <Header />
             <main className="flex-grow">
                 <PassengerDashboard />

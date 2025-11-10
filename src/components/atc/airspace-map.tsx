@@ -4,7 +4,7 @@ export function AirspaceMap() {
     return (
         <MapPlaceholder 
             title="Live Airspace"
-            description="Real-time visualization of all aircraft and drones."
+            description="Real-time visualization of all aircraft, drones, and potential conflicts."
         />
     )
 }

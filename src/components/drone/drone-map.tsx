@@ -4,7 +4,7 @@ export function DroneMap() {
     return (
         <MapPlaceholder
             title="Low-Altitude Airspace"
-            description="Approved flight zones and real-time drone traffic."
+            description="View approved flight zones, real-time drone traffic, and weather conditions."
         />
     )
 }

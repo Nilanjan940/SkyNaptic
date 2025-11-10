@@ -8,7 +8,6 @@ import {
 import { mockDrones } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 
-// A custom drone icon
 function DroneIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -40,7 +39,7 @@ export function DroneActivity() {
   }
 
   return (
-    <Card>
+    <Card className="shadow-md">
       <CardHeader>
         <CardTitle>Drone Activity</CardTitle>
         <CardDescription>
@@ -49,15 +48,18 @@ export function DroneActivity() {
       </CardHeader>
       <CardContent className="grid gap-4">
         {mockDrones.map((drone) => (
-          <div key={drone.id} className="flex items-center justify-between">
+          <div key={drone.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
             <div className="flex items-center gap-4">
-              <DroneIcon className="h-6 w-6 text-muted-foreground" />
+              <DroneIcon className="h-8 w-8 text-primary" />
               <div>
                 <p className="font-semibold">{drone.id}</p>
                 <p className="text-sm text-muted-foreground">{drone.operator}</p>
               </div>
             </div>
-            <Badge variant={getStatusVariant(drone.status)}>{drone.status}</Badge>
+            <div className="text-right">
+                <Badge variant={getStatusVariant(drone.status)}>{drone.status}</Badge>
+                <p className="text-sm text-muted-foreground mt-1">{drone.altitude} ft</p>
+            </div>
           </div>
         ))}
       </CardContent>

@@ -99,8 +99,14 @@ export const mockDrones: Drone[] = [
 export const mockPassengerFlight = {
     flightNumber: "SN404",
     airline: "SkyNaptic Air",
-    origin: "San Francisco (SFO)",
-    destination: "New York (JFK)",
+    origin: {
+        city: "San Francisco",
+        code: "SFO",
+    },
+    destination: {
+        city: "New York",
+        code: "JFK",
+    },
     status: "On Time",
     gate: "B12",
     seat: "14A",
@@ -119,12 +125,12 @@ export const mockPassengerFlight = {
 export const mockPilotFlightPlan = {
     flightNumber: "SN007",
     aircraft: "Boeing 787-9 Dreamliner",
-    origin: "London Heathrow (LHR)",
-    destination: "Singapore Changi (SIN)",
-    departureTime: "21:00 GMT",
-    arrivalTime: "17:50 SGT",
+    origin: "LHR",
+    destination: "SIN",
+    departureTime: "21:00Z",
+    arrivalTime: "17:50Z",
     route: "LHR DCT DVR UL607 KOK GOLUM UZ904 KFA UN644 OTKEP L612 INBOM M770 REPSA N644 ADINA L510 PEPAS R460 VKR A464 IGREX/M083F390 A464 VPL DCT",
-    altitude: "FL390 / FL410",
+    altitude: "FL390",
     estimatedFuel: "95,000 kg",
-    alternateAirport: "Kuala Lumpur (KUL)"
+    alternateAirport: "KUL"
 }
