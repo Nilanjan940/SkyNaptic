@@ -15,42 +15,78 @@ import {
 import type { UserRole } from "@/lib/types";
 import { VerifyIdentity } from "./verify-identity";
 import { AnimatePresence, motion } from "framer-motion";
+import { useAuth, useFirestore } from "@/firebase";
+import { signInAnonymously } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
+
 
 export function SignupForm() {
   const router = useRouter();
+  const auth = useAuth();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
   const [role, setRole] = useState<UserRole>("passenger");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     setStep(2); // Move to verification step
   };
 
-  const onVerificationComplete = () => {
-    // Simulate signup and role assignment
-    localStorage.setItem("userRole", role);
-    localStorage.setItem("userEmail", email || `${role}@skynaptic.com`);
-    
-    switch (role) {
-      case "atc":
-        router.push("/atc");
-        break;
-      case "pilot":
-        router.push("/pilot");
-        break;
-      case "passenger":
-        router.push("/passenger");
-        break;
-      case "drone-operator":
-        router.push("/drone");
-        break;
-      default:
-        router.push("/");
+  const onVerificationComplete = async () => {
+    if (!auth || !firestore) return;
+    setLoading(true);
+
+    try {
+      // 1. Sign in the user anonymously to get a UID
+      const userCredential = await signInAnonymously(auth);
+      const user = userCredential.user;
+
+      // 2. Create the user's profile in Firestore
+      const userProfile = {
+        id: user.uid,
+        email: email,
+        name: name,
+        role: role,
+      };
+      await setDoc(doc(firestore, "userProfiles", user.uid), userProfile);
+      
+      // 3. Store role and email for immediate UI updates
+      localStorage.setItem("userRole", role);
+      localStorage.setItem("userEmail", email);
+
+      // 4. Navigate to the correct dashboard
+      switch (role) {
+        case "atc":
+          router.push("/atc");
+          break;
+        case "pilot":
+          router.push("/pilot");
+          break;
+        case "passenger":
+          router.push("/passenger");
+          break;
+        case "drone-operator":
+          router.push("/drone");
+          break;
+        default:
+          router.push("/");
+      }
+      router.refresh();
+    } catch (error) {
+       console.error("Signup failed:", error);
+      toast({
+        title: "Signup Failed",
+        description: "Could not create your account. Please try again.",
+        variant: "destructive",
+      });
+      setLoading(false);
     }
-    // This is a bit of a hack to force a re-render of the header
-    router.refresh();
   };
 
   return (
