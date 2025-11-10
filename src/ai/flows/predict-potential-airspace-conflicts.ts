@@ -30,7 +30,7 @@ const ConflictAlertSchema = z.object({
   timeToImpact: z.number().describe('The estimated time to impact in seconds. 0 if it is a location-based issue.'),
   latitude: z.number().describe('The latitude of the potential conflict.'),
   longitude: z.number().describe('The longitude of the potential conflict.'),
-  altitude: z-number().describe('The altitude of the potential conflict.'),
+  altitude: z.number().describe('The altitude of the potential conflict.'),
   severity: z.enum(['low', 'medium', 'high']).describe('The severity of the potential conflict.'),
   probability: z.number().describe('The probability of the conflict occurring (0-1).'),
   reason: z.string().describe('A brief explanation of the issue, e.g., "Proximity to restricted airspace", "Terrain conflict", "Loss of separation".'),
