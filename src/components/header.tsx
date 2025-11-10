@@ -1,9 +1,21 @@
+"use client"
 import Link from "next/link";
 import { Logo } from "@/components/icons";
 import { UserNav } from "@/components/user-nav";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { LoginButton } from "./auth/login-button";
+import { SignupButton } from "./auth/signup-button";
 
 export function Header() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const role = localStorage.getItem("userRole");
+      setIsLoggedIn(!!role);
+    }
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
@@ -15,10 +27,15 @@ export function Header() {
             </span>
           </Link>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-1">
+        <div className="flex flex-1 items-center justify-end space-x-2">
+          {isLoggedIn ? (
             <UserNav />
-          </nav>
+          ) : (
+            <>
+              <LoginButton />
+              <SignupButton />
+            </>
+          )}
         </div>
       </div>
     </header>
