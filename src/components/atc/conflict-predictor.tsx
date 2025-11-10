@@ -56,13 +56,21 @@ export function ConflictPredictor() {
           description: "The airspace is clear of potential conflicts based on current data.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Conflict prediction failed:", error);
-      toast({
-        title: "Prediction Error",
-        description: "Could not run the conflict prediction model.",
-        variant: "destructive",
-      });
+      if (error.message && error.message.includes("503 Service Unavailable")) {
+        toast({
+          title: "AI Model Overloaded",
+          description: "The prediction service is currently busy. Please try again in a few moments.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Prediction Error",
+          description: "Could not run the conflict prediction model.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
