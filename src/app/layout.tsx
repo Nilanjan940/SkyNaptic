@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ThemeToggle } from '@/components/theme-toggle';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'SkyNaptic',
@@ -32,6 +33,10 @@ export default function RootLayout({
           <Toaster />
           <ThemeToggle />
         </ThemeProvider>
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=core,maps,marker&v=beta`}
+          strategy="beforeInteractive"
+        />
       </body>
     </html>
   );
