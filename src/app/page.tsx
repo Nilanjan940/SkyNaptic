@@ -13,7 +13,7 @@ export default function LandingPage() {
         <section className="relative h-[60vh] md:h-[80vh] flex items-center justify-center text-center px-4">
             <div className="absolute inset-0 bg-primary/10 -z-10" />
             <Image
-                src="https://images.unsplash.com/photo-1570795521198-8045d6a7f34a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhZXJpYWwlMjB2aWV3JTIwb2YlMjBhaXJwbGFuZXxlbnwwfHx8fDE3NjI4MDY3MjV8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Aerial view of an airplane wing over clouds"
                 fill
                 className="object-cover -z-20 opacity-20"
@@ -52,7 +52,7 @@ export default function LandingPage() {
                 <div className="mt-12 grid md:grid-cols-3 gap-8">
                     <div className="flex flex-col items-center text-center p-6 rounded-lg border">
                          <div className="relative w-full h-48 mb-6 rounded-lg overflow-hidden">
-                            <Image src="https://picsum.photos/seed/1/600/400" alt="AI brain graphic" layout="fill" objectFit="cover" data-ai-hint="abstract network" />
+                            <Image src="https://picsum.photos/seed/1/600/400" alt="AI brain graphic" fill className="object-cover" data-ai-hint="abstract network" />
                         </div>
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Bot className="w-10 h-10 text-primary" />
@@ -64,7 +64,7 @@ export default function LandingPage() {
                     </div>
                     <div className="flex flex-col items-center text-center p-6 rounded-lg border">
                         <div className="relative w-full h-48 mb-6 rounded-lg overflow-hidden">
-                            <Image src="https://picsum.photos/seed/2/600/400" alt="Plane in the sky" layout="fill" objectFit="cover" data-ai-hint="airplane sky" />
+                            <Image src="https://picsum.photos/seed/2/600/400" alt="Plane in the sky" fill className="object-cover" data-ai-hint="airplane sky" />
                         </div>
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Plane className="w-10 h-10 text-primary" />
@@ -76,7 +76,7 @@ export default function LandingPage() {
                     </div>
                     <div className="flex flex-col items-center text-center p-6 rounded-lg border">
                          <div className="relative w-full h-48 mb-6 rounded-lg overflow-hidden">
-                            <Image src="https://picsum.photos/seed/3/600/400" alt="Weather map with clouds" layout="fill" objectFit="cover" data-ai-hint="weather map" />
+                            <Image src="https://picsum.photos/seed/3/600/400" alt="Weather map with clouds" fill className="object-cover" data-ai-hint="weather map" />
                         </div>
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Cloudy className="w-10 h-10 text-primary" />
