@@ -6,7 +6,11 @@ import { useEffect, useState } from "react";
 import { LoginButton } from "./auth/login-button";
 import { SignupButton } from "./auth/signup-button";
 
-export function Header() {
+type HeaderProps = {
+  isLandingPage?: boolean;
+};
+
+export function Header({ isLandingPage = false }: HeaderProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -28,7 +32,7 @@ export function Header() {
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
-          {isLoggedIn ? (
+          {isLoggedIn && !isLandingPage ? (
             <UserNav />
           ) : (
             <>

@@ -3,11 +3,12 @@ import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Bot, Cloudy, Plane } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Header />
+      <Header isLandingPage={true} />
       <main className="flex-1">
         <section className="relative h-[60vh] md:h-[80vh] flex items-center justify-center text-center px-4">
             <div className="absolute inset-0 bg-primary/10 -z-10" />
@@ -26,10 +27,12 @@ export default function LandingPage() {
                     SkyNaptic provides a unified platform for air traffic controllers, pilots, and drone operators to ensure safer skies and more efficient operations.
                 </p>
                 <div className="mt-8 flex justify-center gap-4">
-                    <Button size="lg" className="font-semibold">
-                        Get Started
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
+                    <Link href="/atc">
+                        <Button size="lg" className="font-semibold">
+                            Get Started
+                            <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                    </Link>
                     <Button size="lg" variant="outline" className="font-semibold">
                         Learn More
                     </Button>
@@ -42,36 +45,36 @@ export default function LandingPage() {
                 <div className="text-center max-w-3xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">A New Era of Airspace Coordination</h2>
                     <p className="mt-4 text-muted-foreground md:text-lg">
-                        Our AI-powered platform provides predictive insights and seamless communication across all airspace users.
+                        Our AI-powered platform provides predictive insights and seamless communication across all airspace users, from commercial aviation to the burgeoning world of unmanned aerial vehicles. We are creating a safer, more efficient sky for everyone.
                     </p>
                 </div>
 
                 <div className="mt-12 grid md:grid-cols-3 gap-8 text-center">
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center p-6 rounded-lg border">
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Bot className="w-10 h-10 text-primary" />
                         </div>
                         <h3 className="text-xl font-semibold font-headline">AI-Powered Conflict Prediction</h3>
                         <p className="mt-2 text-muted-foreground">
-                            Proactively identify and mitigate potential airspace conflicts before they occur with our advanced AI models.
+                            Proactively identify and mitigate potential airspace conflicts before they occur with our advanced AI models that analyze thousands of data points in real-time.
                         </p>
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center p-6 rounded-lg border">
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Plane className="w-10 h-10 text-primary" />
                         </div>
                         <h3 className="text-xl font-semibold font-headline">Unified Traffic View</h3>
                         <p className="mt-2 text-muted-foreground">
-                            Visualize all air traffic, from commercial airliners to commercial drones, in a single, intuitive interface.
+                            Visualize all air traffic, from commercial airliners to commercial drones and eVTOLs, in a single, intuitive, and high-fidelity interface.
                         </p>
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center p-6 rounded-lg border">
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Cloudy className="w-10 h-10 text-primary" />
                         </div>
                         <h3 className="text-xl font-semibold font-headline">Real-time Weather & Data</h3>
                         <p className="mt-2 text-muted-foreground">
-                            Integrate live weather data and flight plans for enhanced situational awareness and decision making.
+                            Integrate live weather data, NOTAMs, and flight plans for enhanced situational awareness and proactive decision making.
                         </p>
                     </div>
                 </div>
