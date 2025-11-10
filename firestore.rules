@@ -79,8 +79,7 @@ service cloud.firestore {
         return isOperator(operatorId) && resource != null;
       }
 
-      allow get: if isOperator(resource.data.operatorId);
-      allow list: if request.auth != null;
+      allow get, list: if request.auth != null;
       allow create: if request.resource.data.operatorId == request.auth.uid;
       allow update: if isExistingOperator(resource.data.operatorId) && request.resource.data.operatorId == resource.data.operatorId; // Ensure only the operator can update, and the operatorId cannot be changed.
       allow delete: if isExistingOperator(resource.data.operatorId);
