@@ -1,6 +1,6 @@
 'use client';
 
-import { collection, getDocs, writeBatch, Firestore } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, Firestore, doc } from 'firebase/firestore';
 import { mockFlights, mockDrones } from './data';
 
 export async function seedDatabase(db: Firestore) {
@@ -15,7 +15,7 @@ export async function seedDatabase(db: Firestore) {
   if (flightsSnapshot.empty) {
     const batch = writeBatch(db);
     mockFlights.forEach((flight) => {
-      const docRef = collection(db, 'flights').doc(flight.id);
+      const docRef = doc(db, 'flights', flight.id);
       batch.set(docRef, flight);
     });
     await batch.commit();
@@ -26,7 +26,7 @@ export async function seedDatabase(db: Firestore) {
   if (dronesSnapshot.empty) {
     const batch = writeBatch(db);
     mockDrones.forEach((drone) => {
-      const docRef = collection(db, 'drones').doc(drone.id);
+      const docRef = doc(db, 'drones', drone.id);
       batch.set(docRef, drone);
     });
     await batch.commit();
