@@ -62,7 +62,7 @@ service cloud.firestore {
     }
 
     /**
-     * @description Enforces operator-ownership for drone data.  Only the drone's operator can access it.
+     * @description Enforces operator-ownership for drone data. Only the drone's operator can access it.
      * @path /drones/{droneId}
      * @allow (create) DroneOperator 'user_abc' can create a drone with operatorId 'user_abc'.
      * @allow (get, update, delete) DroneOperator 'user_abc' can get, update, and delete their own drone.
