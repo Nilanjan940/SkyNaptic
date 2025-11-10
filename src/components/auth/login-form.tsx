@@ -13,9 +13,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { UserRole } from '@/lib/types';
-import { useAuth, useFirestore } from '@/firebase';
+import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { signInAnonymously } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 export function LoginForm() {
@@ -34,24 +34,23 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      // 1. Sign in the user anonymously to get a UID
       const userCredential = await signInAnonymously(auth);
       const user = userCredential.user;
 
-      // 2. Create or update the user's profile in Firestore
       const userProfile = {
         id: user.uid,
         email: email || `${role}@skynaptic.com`,
         name: email.split('@')[0] || role,
         role: role,
       };
-      await setDoc(doc(firestore, 'userProfiles', user.uid), userProfile);
       
-      // 3. Store role and email for immediate UI updates (optional, can be derived from Firestore)
+      const userDocRef = doc(firestore, 'userProfiles', user.uid);
+      // Use non-blocking write with enhanced error handling
+      setDocumentNonBlocking(userDocRef, userProfile, { merge: false });
+      
       localStorage.setItem('userRole', role);
       localStorage.setItem('userEmail', userProfile.email);
 
-      // 4. Navigate to the correct dashboard
       switch (role) {
         case 'atc':
           router.push('/atc');
@@ -76,7 +75,6 @@ export function LoginForm() {
         description: 'Could not sign in. Please try again.',
         variant: 'destructive',
       });
-    } finally {
       setLoading(false);
     }
   };
