@@ -35,4 +35,5 @@ export type ConflictAlert = {
   altitude: number;
   severity: "low" | "medium" | "high";
   probability: number;
+  reason: string;
 };

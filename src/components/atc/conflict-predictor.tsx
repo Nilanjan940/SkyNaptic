@@ -100,15 +100,15 @@ export function ConflictPredictor() {
                 <AlertTriangle className="h-5 w-5 mt-1 text-destructive flex-shrink-0" />
                 <div>
                     <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold">Conflict Alert</h4>
+                        <h4 className="font-semibold">{alert.reason}</h4>
                         <Badge variant={getSeverityBadge(alert.severity)}>{alert.severity}</Badge>
                     </div>
                   <p className="text-sm text-muted-foreground">
                     Flights: <span className="font-medium text-foreground">{alert.flightIds.join(', ')}</span>
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  {alert.timeToImpact > 0 && <p className="text-sm text-muted-foreground">
                     Time to Impact: <span className="font-medium text-foreground">{alert.timeToImpact}s</span>
-                  </p>
+                  </p>}
                    <p className="text-sm text-muted-foreground">
                     Probability: <span className="font-medium text-foreground">{Math.round(alert.probability * 100)}%</span>
                   </p>
