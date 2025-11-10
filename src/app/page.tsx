@@ -49,8 +49,11 @@ export default function LandingPage() {
                     </p>
                 </div>
 
-                <div className="mt-12 grid md:grid-cols-3 gap-8 text-center">
-                    <div className="flex flex-col items-center p-6 rounded-lg border">
+                <div className="mt-12 grid md:grid-cols-3 gap-8">
+                    <div className="flex flex-col items-center text-center p-6 rounded-lg border">
+                         <div className="relative w-full h-48 mb-6 rounded-lg overflow-hidden">
+                            <Image src="https://picsum.photos/seed/1/600/400" alt="AI brain graphic" layout="fill" objectFit="cover" data-ai-hint="abstract network" />
+                        </div>
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Bot className="w-10 h-10 text-primary" />
                         </div>
@@ -59,7 +62,10 @@ export default function LandingPage() {
                             Proactively identify and mitigate potential airspace conflicts before they occur with our advanced AI models that analyze thousands of data points in real-time.
                         </p>
                     </div>
-                    <div className="flex flex-col items-center p-6 rounded-lg border">
+                    <div className="flex flex-col items-center text-center p-6 rounded-lg border">
+                        <div className="relative w-full h-48 mb-6 rounded-lg overflow-hidden">
+                            <Image src="https://picsum.photos/seed/2/600/400" alt="Plane in the sky" layout="fill" objectFit="cover" data-ai-hint="airplane sky" />
+                        </div>
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Plane className="w-10 h-10 text-primary" />
                         </div>
@@ -68,7 +74,10 @@ export default function LandingPage() {
                             Visualize all air traffic, from commercial airliners to commercial drones and eVTOLs, in a single, intuitive, and high-fidelity interface.
                         </p>
                     </div>
-                    <div className="flex flex-col items-center p-6 rounded-lg border">
+                    <div className="flex flex-col items-center text-center p-6 rounded-lg border">
+                         <div className="relative w-full h-48 mb-6 rounded-lg overflow-hidden">
+                            <Image src="https://picsum.photos/seed/3/600/400" alt="Weather map with clouds" layout="fill" objectFit="cover" data-ai-hint="weather map" />
+                        </div>
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Cloudy className="w-10 h-10 text-primary" />
                         </div>
