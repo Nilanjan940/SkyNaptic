@@ -1,0 +1,253 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user profile within the SkyNaptic application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "role": {
+          "type": "string",
+          "description": "User's role within the system (e.g., ATC, Pilot, Passenger, DroneOperator)."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name",
+        "role"
+      ]
+    },
+    "Flight": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Flight",
+      "type": "object",
+      "description": "Represents a flight within the SkyNaptic system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the flight."
+        },
+        "flightNumber": {
+          "type": "string",
+          "description": "The flight number (e.g., 'SK901')."
+        },
+        "origin": {
+          "type": "string",
+          "description": "Origin airport code."
+        },
+        "destination": {
+          "type": "string",
+          "description": "Destination airport code."
+        },
+        "departureTime": {
+          "type": "string",
+          "description": "Scheduled departure time.",
+          "format": "date-time"
+        },
+        "arrivalTime": {
+          "type": "string",
+          "description": "Scheduled arrival time.",
+          "format": "date-time"
+        },
+        "currentLatitude": {
+          "type": "number",
+          "description": "Current latitude of the flight."
+        },
+        "currentLongitude": {
+          "type": "number",
+          "description": "Current longitude of the flight."
+        },
+        "altitude": {
+          "type": "number",
+          "description": "Current altitude of the flight in feet."
+        },
+        "speed": {
+          "type": "number",
+          "description": "Current speed of the flight in knots."
+        }
+      },
+      "required": [
+        "id",
+        "flightNumber",
+        "origin",
+        "destination",
+        "departureTime",
+        "arrivalTime"
+      ]
+    },
+    "Drone": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Drone",
+      "type": "object",
+      "description": "Represents a drone within the SkyNaptic system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the drone."
+        },
+        "operatorId": {
+          "type": "string",
+          "description": "Reference to UserProfile (DroneOperator). (Relationship: UserProfile 1:N Drone)"
+        },
+        "currentLatitude": {
+          "type": "number",
+          "description": "Current latitude of the drone."
+        },
+        "currentLongitude": {
+          "type": "number",
+          "description": "Current longitude of the drone."
+        },
+        "altitude": {
+          "type": "number",
+          "description": "Current altitude of the drone."
+        },
+        "routeStatus": {
+          "type": "string",
+          "description": "Current status of the drone's route."
+        }
+      },
+      "required": [
+        "id",
+        "operatorId",
+        "currentLatitude",
+        "currentLongitude",
+        "altitude",
+        "routeStatus"
+      ]
+    },
+    "Alert": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Alert",
+      "type": "object",
+      "description": "Represents an alert within the SkyNaptic system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the alert."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of alert (e.g., conflict, weather, emergency)."
+        },
+        "message": {
+          "type": "string",
+          "description": "Description of the alert."
+        },
+        "flightIds": {
+          "type": "array",
+          "description": "References to Flights. (Relationship: Flight N:N Alert)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "droneIds": {
+          "type": "array",
+          "description": "References to Drones. (Relationship: Drone N:N Alert)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the alert was generated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "message",
+        "timestamp"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/userProfiles/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. Path-based ownership, where only the user can access their own profile.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/flights/{flightId}",
+        "definition": {
+          "entityName": "Flight",
+          "schema": {
+            "$ref": "#/backend/entities/Flight"
+          },
+          "description": "Stores flight information.",
+          "params": [
+            {
+              "name": "flightId",
+              "description": "The unique identifier of the flight."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/drones/{droneId}",
+        "definition": {
+          "entityName": "Drone",
+          "schema": {
+            "$ref": "#/backend/entities/Drone"
+          },
+          "description": "Stores drone information. Includes `operatorId` to link to the operator's user profile for authorization.",
+          "params": [
+            {
+              "name": "droneId",
+              "description": "The unique identifier of the drone."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/alerts/{alertId}",
+        "definition": {
+          "entityName": "Alert",
+          "schema": {
+            "$ref": "#/backend/entities/Alert"
+          },
+          "description": "Stores alert information related to flights and drones.",
+          "params": [
+            {
+              "name": "alertId",
+              "description": "The unique identifier of the alert."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the SkyNaptic application with a focus on role-based access control and real-time data updates. It prioritizes authorization independence and adheres to structural segregation for enhanced security and maintainability. User profiles are stored in the `userProfiles` collection, while Flights are in `flights`, Drones in `drones`, and Alerts in `alerts`. To enforce authorization independence, the `operatorId` in the `/drones` collection is used to define the relationship between the `UserProfile` and `Drone`. This structure allows for clear and efficient security rules, enabling role-based access control and facilitating real-time data updates using Firestore listeners."
+  }
+}

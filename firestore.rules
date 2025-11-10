@@ -1,0 +1,101 @@
+/**
+ * @file Firebase Security Rules for SkyNaptic Firestore database.
+ *
+ * Core Philosophy:
+ * This ruleset prioritizes secure data access based on user roles and ownership.
+ * It allows public read access to flight and alert data while restricting write access to authorized users.
+ * User profiles and drones are strictly controlled by their respective owners.
+ *
+ * Data Structure:
+ * - /userProfiles/{userId}: Stores individual user profile data. Only the user can read/write their own profile.
+ * - /flights/{flightId}: Stores flight data. Publicly readable, writeable by authorized roles (not defined in this prototype).
+ * - /drones/{droneId}: Stores drone data. Only the drone operator (owner) can read/write.
+ * - /alerts/{alertId}: Stores alert data. Publicly readable, writeable by authorized roles (not defined in this prototype).
+ *
+ * Key Security Decisions:
+ * - User listing is explicitly denied for privacy.
+ * - Public read access is granted to flight and alert data to facilitate visualization and data sharing.
+ * - The data schema is not strictly enforced in this prototyping phase, but authorization-critical fields (e.g., operatorId in Drones) are validated.
+ *
+ * Denormalization for Authorization:
+ * - The `drones` collection uses the `operatorId` field to link each drone to its operator's `userProfile`. This avoids the need for complex `get()` calls to determine ownership and allows for performant rules.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Enforces strict user-ownership for user profile data.
+     * @path /userProfiles/{userId}
+     * @allow (create) User with ID 'user_abc' can create their own profile at /userProfiles/user_abc.
+     * @allow (get, update, delete) User with ID 'user_abc' can get, update, and delete their own profile at /userProfiles/user_abc.
+     * @deny (create) User with ID 'user_xyz' cannot create a profile at /userProfiles/user_abc.
+     * @deny (get, update, delete) User with ID 'user_xyz' cannot get, update, or delete the profile at /userProfiles/user_abc.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /userProfiles/{userId} {
+      //isOwner to check if the user is the owner
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+      //isExistingOwner to check if the user is the owner and the resource exists
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+      allow get: if isOwner(userId);
+      allow list: if false; // User listing is not permitted.
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == userId; //Enforce immutability of the 'id' field.
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows public read access to flight data, with write access restricted to authorized users (unspecified in this prototype).
+     * @path /flights/{flightId}
+     * @allow (get, list) Any user can read flight data.
+     * @deny (create, update, delete) No user can create, update, or delete flight data without further authorization logic.
+     * @principle Allows public reads, restricts writes.
+     */
+    match /flights/{flightId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Add role-based authorization for flight data modification.
+    }
+
+    /**
+     * @description Enforces operator-ownership for drone data.  Only the drone's operator can access it.
+     * @path /drones/{droneId}
+     * @allow (create) DroneOperator 'user_abc' can create a drone with operatorId 'user_abc'.
+     * @allow (get, update, delete) DroneOperator 'user_abc' can get, update, and delete their own drone.
+     * @deny (create) User 'user_xyz' cannot create a drone for operator 'user_abc'.
+     * @deny (get, update, delete) User 'user_xyz' cannot get, update, or delete drone 'drone_123' owned by operator 'user_abc'.
+     * @principle Enforces document ownership based on the operatorId field.
+     */
+    match /drones/{droneId} {
+      function isOperator(operatorId) {
+        return request.auth.uid == operatorId;
+      }
+
+      function isExistingOperator(operatorId) {
+        return isOperator(operatorId) && resource != null;
+      }
+
+      allow get: if isOperator(resource.data.operatorId);
+      allow list: if false;
+      allow create: if request.resource.data.operatorId == request.auth.uid;
+      allow update: if isExistingOperator(resource.data.operatorId) && request.resource.data.operatorId == resource.data.operatorId; // Ensure only the operator can update, and the operatorId cannot be changed.
+      allow delete: if isExistingOperator(resource.data.operatorId);
+    }
+
+    /**
+     * @description Allows public read access to alert data, with write access restricted to authorized users (unspecified in this prototype).
+     * @path /alerts/{alertId}
+     * @allow (get, list) Any user can read alert data.
+     * @deny (create, update, delete) No user can create, update, or delete alert data without further authorization logic.
+     * @principle Allows public reads, restricts writes.
+     */
+    match /alerts/{alertId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Add role-based authorization for alert data modification.
+    }
+  }
+}
