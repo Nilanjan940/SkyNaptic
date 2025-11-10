@@ -31,7 +31,7 @@ export function FlightStatus() {
                 <CardTitle className="text-2xl font-headline">Flight {flightNumber}</CardTitle>
                 <CardDescription>{airline}</CardDescription>
             </div>
-            <Badge variant={getStatusVariant(status)} className="text-base px-4 py-1">{status}</Badge>
+            <Badge variant={getStatusVariant(status) as any} className="text-base px-4 py-1">{status}</Badge>
         </div>
       </CardHeader>
       <CardContent>

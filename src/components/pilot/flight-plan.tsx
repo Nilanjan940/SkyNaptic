@@ -20,7 +20,7 @@ export function FlightPlan() {
                 <CardTitle>Flight Plan: {flightNumber}</CardTitle>
                 <CardDescription>{aircraft}</CardDescription>
             </div>
-            <Badge variant="default" className="text-base">Active</Badge>
+            <Badge variant={"default" as any} className="text-base">Active</Badge>
         </div>
       </CardHeader>
       <CardContent className="grid gap-4 text-sm">

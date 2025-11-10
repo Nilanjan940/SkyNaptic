@@ -57,7 +57,7 @@ export function DroneActivity() {
               </div>
             </div>
             <div className="text-right">
-                <Badge variant={getStatusVariant(drone.status)}>{drone.status}</Badge>
+                <Badge variant={getStatusVariant(drone.status) as any}>{drone.status}</Badge>
                 <p className="text-sm text-muted-foreground mt-1">{drone.altitude} ft</p>
             </div>
           </div>

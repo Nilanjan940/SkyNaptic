@@ -67,7 +67,7 @@ export function ActiveFlights() {
                   </TableCell>
                   <TableCell>{flight.altitude > 0 ? `${flight.altitude} ft` : 'Grounded'}</TableCell>
                   <TableCell className="text-right">
-                    <Badge variant={getStatusVariant(flight.status)}>
+                    <Badge variant={getStatusVariant(flight.status) as any}>
                       {flight.status}
                     </Badge>
                   </TableCell>
