@@ -4,25 +4,39 @@ import { predictPotentialAirspaceConflicts, PredictPotentialAirspaceConflictsInp
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { mockFlights } from '@/lib/data';
-import { ConflictAlert } from '@/lib/types';
+import { ConflictAlert, Flight } from '@/lib/types';
 import { AlertTriangle, Bot, Loader2, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '../ui/badge';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
 
 export function ConflictPredictor() {
   const [loading, setLoading] = useState(false);
   const [alerts, setAlerts] = useState<ConflictAlert[]>([]);
   const { toast } = useToast();
+  const firestore = useFirestore();
+
+  const inFlightQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'flights'), where('status', '==', 'In-Flight')), [firestore]);
+  const { data: flights } = useCollection<Flight>(inFlightQuery);
+
 
   const handlePredict = async () => {
     setLoading(true);
     setAlerts([]);
+
+    if (!flights || flights.length < 2) {
+      toast({
+        title: "Not Enough Data",
+        description: "Need at least two in-flight aircraft to predict conflicts.",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const flightDataInput: PredictPotentialAirspaceConflictsInput = {
-        flightData: mockFlights
-          .filter(f => f.status === 'In-Flight')
-          .map(f => ({
+        flightData: flights.map(f => ({
             flightId: f.id,
             latitude: f.latitude,
             longitude: f.longitude,
@@ -32,15 +46,6 @@ export function ConflictPredictor() {
             timestamp: new Date().toISOString(),
           })),
       };
-
-      if (flightDataInput.flightData.length < 2) {
-         toast({
-          title: "Not Enough Data",
-          description: "Need at least two in-flight aircraft to predict conflicts.",
-        });
-        setLoading(false);
-        return;
-      }
 
       const result = await predictPotentialAirspaceConflicts(flightDataInput);
       if (result.conflictAlerts && result.conflictAlerts.length > 0) {
@@ -131,7 +136,7 @@ export function ConflictPredictor() {
         )}
       </CardContent>
       <CardFooter>
-        <Button onClick={handlePredict} disabled={loading} className="w-full font-semibold">
+        <Button onClick={handlePredict} disabled={loading || !flights || flights.length < 2} className="w-full font-semibold">
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

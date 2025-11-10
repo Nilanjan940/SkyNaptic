@@ -1,13 +1,25 @@
+'use client';
+
 import { Map } from "@/components/map";
-import { mockFlights, mockDrones } from "@/lib/data";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query, where } from "firebase/firestore";
+import type { Drone, Flight } from "@/lib/types";
 
 export function AirspaceMap() {
+    const firestore = useFirestore();
+    
+    const flightsQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'flights'), where('status', '==', 'In-Flight')), [firestore]);
+    const { data: flights } = useCollection<Flight>(flightsQuery);
+
+    const dronesQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'drones'), where('status', '==', 'In-Flight')), [firestore]);
+    const { data: drones } = useCollection<Drone>(dronesQuery);
+
     return (
         <Map 
             title="Live Airspace"
             description="Real-time visualization of all aircraft, drones, and potential conflicts."
-            flights={mockFlights.filter(f => f.status === 'In-Flight')}
-            drones={mockDrones.filter(d => d.status === 'In-Flight')}
+            flights={flights ?? []}
+            drones={drones ?? []}
         />
     )
 }

@@ -6,10 +6,13 @@ import { ActiveFlights } from "./atc/active-flights";
 import { AirspaceMap } from "./atc/airspace-map";
 import { ConflictPredictor } from "./atc/conflict-predictor";
 import { DroneActivity } from "./atc/drone-activity";
+import { useFirestore } from "@/firebase";
+import { seedDatabase } from "@/lib/seed";
 
 export function AtcDashboard() {
     const router = useRouter();
     const [email, setEmail] = useState<string | null>(null);
+    const firestore = useFirestore();
 
     useEffect(() => {
         const role = localStorage.getItem("userRole");
@@ -20,6 +23,12 @@ export function AtcDashboard() {
             setEmail(userEmail);
         }
     }, [router]);
+    
+    useEffect(() => {
+        if (firestore) {
+            seedDatabase(firestore).catch(console.error);
+        }
+    }, [firestore]);
 
 
     return (

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Card,
   CardContent,
@@ -6,8 +8,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { mockDrones } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query } from "firebase/firestore";
+import type { Drone } from "@/lib/types";
+import { Loader2 } from "lucide-react";
 
 function DroneIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -34,6 +39,10 @@ function DroneIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export function DroneStatusList() {
+    const firestore = useFirestore();
+    const dronesQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'drones')), [firestore]);
+    const { data: drones, isLoading } = useCollection<Drone>(dronesQuery);
+    
     const getStatusVariant = (status: string) => {
         return status === 'In-Flight' ? 'default' : 'secondary';
     }
@@ -47,7 +56,8 @@ export function DroneStatusList() {
       <CardContent className="flex-grow p-0">
         <ScrollArea className="h-96">
             <div className="p-6 space-y-4">
-            {mockDrones.map((drone) => (
+            {isLoading && <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />}
+            {!isLoading && drones && drones.map((drone) => (
             <div key={drone.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <div className="flex items-center gap-4">
                 <DroneIcon className="h-8 w-8 text-primary" />
@@ -62,6 +72,11 @@ export function DroneStatusList() {
                 </div>
             </div>
             ))}
+            {!isLoading && !drones?.length && (
+                <div className="text-center text-sm text-muted-foreground py-4">
+                    No drones in your fleet.
+                </div>
+            )}
             </div>
         </ScrollArea>
       </CardContent>

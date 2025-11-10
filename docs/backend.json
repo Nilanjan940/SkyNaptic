@@ -45,6 +45,10 @@
           "type": "string",
           "description": "The flight number (e.g., 'SK901')."
         },
+        "airline": {
+          "type": "string",
+          "description": "The name of the airline."
+        },
         "origin": {
           "type": "string",
           "description": "Origin airport code."
@@ -55,19 +59,22 @@
         },
         "departureTime": {
           "type": "string",
-          "description": "Scheduled departure time.",
-          "format": "date-time"
+          "description": "Scheduled departure time."
         },
         "arrivalTime": {
           "type": "string",
-          "description": "Scheduled arrival time.",
-          "format": "date-time"
+          "description": "Scheduled arrival time."
         },
-        "currentLatitude": {
+        "status": {
+          "type": "string",
+          "enum": ["On Time", "Delayed", "In-Flight", "Landed", "Cancelled"],
+          "description": "Current status of the flight."
+        },
+        "latitude": {
           "type": "number",
           "description": "Current latitude of the flight."
         },
-        "currentLongitude": {
+        "longitude": {
           "type": "number",
           "description": "Current longitude of the flight."
         },
@@ -78,15 +85,26 @@
         "speed": {
           "type": "number",
           "description": "Current speed of the flight in knots."
+        },
+        "heading": {
+          "type": "number",
+          "description": "The heading of the flight in degrees."
         }
       },
       "required": [
         "id",
         "flightNumber",
+        "airline",
         "origin",
         "destination",
         "departureTime",
-        "arrivalTime"
+        "arrivalTime",
+        "status",
+        "altitude",
+        "speed",
+        "heading",
+        "latitude",
+        "longitude"
       ]
     },
     "Drone": {
@@ -99,34 +117,45 @@
           "type": "string",
           "description": "Unique identifier for the drone."
         },
-        "operatorId": {
+        "operator": {
           "type": "string",
-          "description": "Reference to UserProfile (DroneOperator). (Relationship: UserProfile 1:N Drone)"
+          "description": "The operator of the drone."
         },
-        "currentLatitude": {
-          "type": "number",
-          "description": "Current latitude of the drone."
+        "model": {
+          "type": "string",
+          "description": "The model of the drone."
         },
-        "currentLongitude": {
-          "type": "number",
-          "description": "Current longitude of the drone."
+        "status": {
+          "type": "string",
+          "enum": ["Grounded", "In-Flight", "Returning"],
+          "description": "Current status of the drone's flight."
         },
         "altitude": {
           "type": "number",
           "description": "Current altitude of the drone."
         },
-        "routeStatus": {
-          "type": "string",
-          "description": "Current status of the drone's route."
+        "speed": {
+          "type": "number",
+          "description": "Current speed of the drone."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "Current latitude of the drone."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Current longitude of the drone."
         }
       },
       "required": [
         "id",
-        "operatorId",
-        "currentLatitude",
-        "currentLongitude",
+        "operator",
+        "model",
+        "status",
         "altitude",
-        "routeStatus"
+        "speed",
+        "latitude",
+        "longitude"
       ]
     },
     "Alert": {

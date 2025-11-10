@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Card,
   CardContent,
@@ -14,11 +16,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { mockFlights } from "@/lib/data";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query } from "firebase/firestore";
+import type { Flight } from "@/lib/types";
 
 export function ActiveFlights() {
+  const firestore = useFirestore();
+  const flightsQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'flights')), [firestore]);
+  const { data: flights, isLoading } = useCollection<Flight>(flightsQuery);
+
   const getStatusVariant = (status: string) => {
     switch (status) {
       case "In-Flight":
@@ -52,7 +60,14 @@ export function ActiveFlights() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockFlights.map((flight) => (
+              {isLoading && (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isLoading && flights && flights.map((flight) => (
                 <TableRow key={flight.id} className="cursor-pointer hover:bg-muted/50">
                   <TableCell>
                     <div className="font-medium">{flight.flightNumber}</div>
@@ -73,6 +88,13 @@ export function ActiveFlights() {
                   </TableCell>
                 </TableRow>
               ))}
+               {!isLoading && !flights?.length && (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    No active flights.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </ScrollArea>
