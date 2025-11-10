@@ -46,7 +46,7 @@ export async function predictPotentialAirspaceConflicts(input: PredictPotentialA
 
 const prompt = ai.definePrompt({
   name: 'predictPotentialAirspaceConflictsPrompt',
-  input: {schema: PredictPotentialAirspaceConflictsInputSchema},
+  input: {schema: z.object({ flightData: z.string() })},
   output: {schema: PredictPotentialAirspaceConflictsOutputSchema},
   prompt: `You are an expert air traffic controller specializing in conflict prediction.
 
@@ -57,7 +57,7 @@ Consider factors such as proximity, altitude, speed, and heading.
 
 Return a list of conflict alerts, including the flight IDs involved, time to impact, location, severity, and probability.
 
-Flight Data: {{{JSON.stringify flightData}}}
+Flight Data: {{{flightData}}}
 
 Respond with conflict alerts formatted as a JSON array. If there are no conflicts, return an empty array.
 `,
@@ -70,7 +70,7 @@ const predictPotentialAirspaceConflictsFlow = ai.defineFlow(
     outputSchema: PredictPotentialAirspaceConflictsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const {output} = await prompt({ flightData: JSON.stringify(input.flightData) });
     return output!;
   }
 );
