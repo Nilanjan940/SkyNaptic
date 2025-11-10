@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { MapPin } from 'lucide-react';
 import { Flight, Drone } from '@/lib/types';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
 
 type MapProps = {
     title: string;
@@ -104,7 +105,7 @@ export function Map({ title, description, flights = [], drones = [] }: MapProps)
 
     useEffect(() => {
         const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-        if (!key || key === 'YOUR_API_KEY_HERE') {
+        if (!key || key === 'YOUR_API_KEY_HERE' || key === 'AIzaSyA-7KLkogeraZM98cYtpE_gsntZ6br_-DY') {
             setApiKeyMissing(true);
             return;
         }
@@ -174,14 +175,23 @@ export function Map({ title, description, flights = [], drones = [] }: MapProps)
                     <CardTitle>{title}</CardTitle>
                     <CardDescription>{description}</CardDescription>
                 </CardHeader>
-                <CardContent className="flex-grow flex flex-col items-center justify-center bg-muted/50 rounded-b-lg">
-                    <div className="flex flex-col items-center text-center text-muted-foreground p-8">
-                        <MapPin className="w-16 h-16 mb-4 text-primary/50" />
-                        <h3 className="font-semibold text-lg">Map View Unavailable</h3>
-                        <p className="text-sm">
-                            Please provide a Google Maps API key in your .env file to enable this feature.
-                        </p>
-                    </div>
+                <CardContent className="flex-grow p-0 rounded-b-lg overflow-hidden relative">
+                   <Image 
+                        src="https://picsum.photos/seed/map/1200/800"
+                        alt="A mock map view"
+                        fill
+                        className="object-cover"
+                        data-ai-hint="map satellite"
+                   />
+                   <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                       <div className="bg-background/80 p-6 rounded-lg shadow-lg text-center backdrop-blur-sm">
+                            <MapPin className="w-12 h-12 mb-4 text-primary mx-auto" />
+                            <h3 className="font-semibold text-lg">Live Map is Offline</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Provide a Google Maps API key to see live data.
+                            </p>
+                       </div>
+                   </div>
                 </CardContent>
             </Card>
         )
