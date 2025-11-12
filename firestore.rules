@@ -60,6 +60,18 @@ service cloud.firestore {
       allow get, list: if true;
       allow create, update, delete: if false; // TODO: Add role-based authorization for flight data modification.
     }
+    
+    /**
+     * @description Allows public read access to drone data, with write access restricted.
+     * @path /drones/{droneId}
+     * @allow (get, list) Any user can read drone data.
+     * @deny (create, update, delete) No user can create, update, or delete drone data without further authorization logic.
+     * @principle Allows public reads, restricts writes.
+     */
+    match /drones/{droneId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Add role-based authorization for drone data modification.
+    }
 
     /**
      * @description Allows public read access to alert data, with write access restricted to authorized users (unspecified in this prototype).
