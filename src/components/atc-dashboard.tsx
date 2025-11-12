@@ -8,11 +8,15 @@ import { ConflictPredictor } from "./atc/conflict-predictor";
 import { DroneActivity } from "./atc/drone-activity";
 import { useFirestore } from "@/firebase";
 import { seedDatabase } from "@/lib/seed";
+import { Button } from "./ui/button";
+import { PlusCircle } from "lucide-react";
+import { FlightFormDialog } from "./atc/flight-form";
 
 export function AtcDashboard() {
     const router = useRouter();
     const [email, setEmail] = useState<string | null>(null);
     const firestore = useFirestore();
+    const [isFormOpen, setIsFormOpen] = useState(false);
 
     useEffect(() => {
         const role = localStorage.getItem("userRole");
@@ -32,12 +36,19 @@ export function AtcDashboard() {
 
 
     return (
+        <>
         <div className="container mx-auto p-4 md:p-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold font-headline mb-1">ATC Dashboard</h1>
-                <p className="text-muted-foreground">
-                    Welcome, Controller <span className="font-semibold text-primary">{email}</span>.
-                </p>
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline mb-1">ATC Dashboard</h1>
+                    <p className="text-muted-foreground">
+                        Welcome, Controller <span className="font-semibold text-primary">{email}</span>.
+                    </p>
+                </div>
+                <Button onClick={() => setIsFormOpen(true)}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Schedule New Flight
+                </Button>
             </div>
             <div className="grid gap-6 xl:grid-cols-3">
                 <div className="xl:col-span-3">
@@ -52,5 +63,11 @@ export function AtcDashboard() {
                 </div>
             </div>
         </div>
+        <FlightFormDialog
+            isOpen={isFormOpen}
+            onOpenChange={setIsFormOpen}
+            flight={null} // Pass null for new flight
+        />
+        </>
     );
 }

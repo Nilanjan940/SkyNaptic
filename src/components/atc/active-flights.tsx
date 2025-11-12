@@ -16,16 +16,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collection, query } from "firebase/firestore";
+import { useCollection, useFirestore, useMemoFirebase, deleteDocumentNonBlocking } from "@/firebase";
+import { collection, query, doc } from "firebase/firestore";
 import type { Flight } from "@/lib/types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
+import { useState } from "react";
+import { FlightForm, FlightFormDialog } from "./flight-form";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 
 export function ActiveFlights() {
   const firestore = useFirestore();
   const flightsQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'flights')), [firestore]);
   const { data: flights, isLoading } = useCollection<Flight>(flightsQuery);
+  const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -39,8 +51,27 @@ export function ActiveFlights() {
         return "outline";
     }
   };
+  
+  const handleEdit = (flight: Flight) => {
+    setSelectedFlight(flight);
+    setIsFormOpen(true);
+  };
+  
+  const handleDelete = (flightId: string) => {
+    if (!firestore) return;
+    const flightRef = doc(firestore, 'flights', flightId);
+    deleteDocumentNonBlocking(flightRef);
+  };
+  
+  const handleDialogClose = (open: boolean) => {
+    if (!open) {
+      setSelectedFlight(null);
+    }
+    setIsFormOpen(open);
+  }
 
   return (
+    <>
     <Card className="h-full flex flex-col shadow-md">
       <CardHeader>
         <CardTitle>Active Flights</CardTitle>
@@ -56,19 +87,20 @@ export function ActiveFlights() {
                 <TableHead>Flight</TableHead>
                 <TableHead>Route</TableHead>
                 <TableHead>Altitude</TableHead>
-                <TableHead className="text-right">Status</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
                   </TableCell>
                 </TableRow>
               )}
               {!isLoading && flights && flights.map((flight) => (
-                <TableRow key={flight.id} className="cursor-pointer hover:bg-muted/50">
+                <TableRow key={flight.id}>
                   <TableCell>
                     <div className="font-medium">{flight.flightNumber}</div>
                     <div className="text-sm text-muted-foreground">
@@ -81,16 +113,51 @@ export function ActiveFlights() {
                     <span className="font-semibold">{flight.destination}</span>
                   </TableCell>
                   <TableCell>{flight.altitude > 0 ? `${flight.altitude} ft` : 'Grounded'}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell>
                     <Badge variant={getStatusVariant(flight.status) as any}>
                       {flight.status}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <AlertDialog>
+                       <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => handleEdit(flight)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem className="text-red-500 focus:text-red-500 focus:bg-red-500/10">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <AlertDialogContent>
+                          <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete the flight record for {flight.flightNumber}.
+                              </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(flight.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                 </TableRow>
               ))}
                {!isLoading && !flights?.length && (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     No active flights.
                   </TableCell>
                 </TableRow>
@@ -100,5 +167,11 @@ export function ActiveFlights() {
         </ScrollArea>
       </CardContent>
     </Card>
+    <FlightFormDialog
+        isOpen={isFormOpen}
+        onOpenChange={handleDialogClose}
+        flight={selectedFlight}
+      />
+    </>
   );
 }
