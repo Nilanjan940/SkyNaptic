@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -15,9 +16,9 @@ import {
 import type { UserRole } from "@/lib/types";
 import { VerifyIdentity } from "./verify-identity";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAuth, useFirestore } from "@/firebase";
+import { useAuth, useFirestore, setDocumentNonBlocking } from "@/firebase";
 import { signInAnonymously } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -54,7 +55,8 @@ export function SignupForm() {
         name: name,
         role: role,
       };
-      await setDoc(doc(firestore, "userProfiles", user.uid), userProfile);
+      const userDocRef = doc(firestore, "userProfiles", user.uid);
+      setDocumentNonBlocking(userDocRef, userProfile, { merge: false });
       
       // 3. Store role and email for immediate UI updates
       localStorage.setItem("userRole", role);
