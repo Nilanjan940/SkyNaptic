@@ -30,11 +30,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    // This is to allow cross-origin requests in development.
-    // In a real production environment, you'd want to be more restrictive.
-    allowedDevOrigins: ["**"],
-  },
   env: {
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
