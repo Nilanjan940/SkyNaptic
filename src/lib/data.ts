@@ -73,6 +73,7 @@ export const mockDrones: Drone[] = [
     speed: 40,
     latitude: 37.7749,
     longitude: -122.4194,
+    battery: 82,
   },
   {
     id: 'DRN-002',
@@ -83,6 +84,7 @@ export const mockDrones: Drone[] = [
     speed: 35,
     latitude: 37.7849,
     longitude: -122.4294,
+    battery: 67,
   },
   {
     id: 'DRN-003',
@@ -93,6 +95,7 @@ export const mockDrones: Drone[] = [
     speed: 0,
     latitude: 37.7649,
     longitude: -122.4094,
+    battery: 98,
   },
 ];
 
@@ -106,6 +109,8 @@ export const mockPassengerFlight = {
     destination: {
         city: "New York",
         code: "JFK",
+        localTime: "4:30 PM",
+        weather: "72°F Sunny",
     },
     status: "On Time",
     gate: "B12",

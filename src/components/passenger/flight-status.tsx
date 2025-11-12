@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { mockPassengerFlight } from "@/lib/data";
-import { Plane, ArrowRight, Clock, DoorOpen, Armchair } from "lucide-react";
+import { Plane, ArrowRight, Clock, DoorOpen, Armchair, Sun, Cloud } from "lucide-react";
 
 export function FlightStatus() {
   const { flightNumber, airline, origin, destination, status, gate, seat, departure, arrival } = mockPassengerFlight;
@@ -69,12 +69,23 @@ export function FlightStatus() {
                 </div>
             </div>
         </div>
-
-         <div className="border-t pt-4 mt-6">
-            <div className="flex items-center gap-3">
+        
+        <div className="grid grid-cols-2 gap-6 border-t pt-4 mt-6 text-sm">
+             <div className="flex items-center gap-3">
                 <Armchair className="h-5 w-5 text-muted-foreground" />
                 <p>Your Seat:</p>
                 <p className="font-bold text-lg ml-auto">{seat}</p>
+            </div>
+            <div className="flex items-center gap-3 justify-end">
+                <p className="text-muted-foreground">Destination:</p>
+                <div className="flex items-center gap-2 font-medium">
+                    <Sun className="h-5 w-5 text-yellow-500" />
+                    <span>72°F Sunny</span>
+                </div>
+                <div className="flex items-center gap-2 font-medium">
+                    <Clock className="h-5 w-5 text-muted-foreground" />
+                    <span>{destination.localTime}</span>
+                </div>
             </div>
         </div>
       </CardContent>

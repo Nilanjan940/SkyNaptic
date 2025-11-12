@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, query } from "firebase/firestore";
 import type { Drone } from "@/lib/types";
-import { Loader2 } from "lucide-react";
+import { BatteryFull, BatteryLow, Loader2 } from "lucide-react";
+import { Progress } from "../ui/progress";
 
 function DroneIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -60,15 +61,18 @@ export function DroneStatusList() {
             {!isLoading && drones && drones.map((drone) => (
             <div key={drone.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <div className="flex items-center gap-4">
-                <DroneIcon className="h-8 w-8 text-primary" />
-                <div>
-                    <p className="font-semibold">{drone.id}</p>
-                    <p className="text-sm text-muted-foreground">{drone.model}</p>
+                    <DroneIcon className="h-8 w-8 text-primary" />
+                    <div>
+                        <p className="font-semibold">{drone.id}</p>
+                        <p className="text-sm text-muted-foreground">{drone.model}</p>
+                    </div>
                 </div>
-                </div>
-                <div className="text-right">
-                    <Badge variant={getStatusVariant(drone.status) as any}>{drone.status}</Badge>
-                    <p className="text-sm text-muted-foreground mt-1">{drone.altitude} ft</p>
+                <div className="text-right w-28">
+                     <div className="flex items-center justify-end gap-2">
+                        <p className="text-xs font-bold">{drone.battery}%</p>
+                        <Progress value={drone.battery} className="h-2 w-12" />
+                    </div>
+                    <Badge variant={getStatusVariant(drone.status) as any} className="mt-1">{drone.status}</Badge>
                 </div>
             </div>
             ))}

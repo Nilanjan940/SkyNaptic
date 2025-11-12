@@ -25,6 +25,7 @@ export type Drone = {
   speed: number;
   latitude: number;
   longitude: number;
+  battery: number;
 };
 
 export type ConflictAlert = {

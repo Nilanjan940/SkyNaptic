@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FlightStatus } from "./passenger/flight-status";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card";
-import { Bell, Gift, Wifi } from "lucide-react";
+import { Bell, Gift, Wifi, BaggageClaim } from "lucide-react";
 import { Button } from "./ui/button";
 
 export function PassengerDashboard() {
@@ -45,6 +45,17 @@ export function PassengerDashboard() {
                                 <Bell className="w-8 h-8 mb-2 text-green-600" />
                                 <p className="font-semibold text-green-700">Your flight is on time.</p>
                              </div>
+                        </CardContent>
+                    </Card>
+                    <Card className="shadow-md">
+                        <CardHeader>
+                            <CardTitle>Baggage Claim</CardTitle>
+                            <CardDescription>Find your luggage upon arrival.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-col items-center justify-center text-center">
+                            <BaggageClaim className="w-10 h-10 mb-2 text-primary" />
+                            <p className="text-muted-foreground">Carousel</p>
+                            <p className="text-4xl font-bold">5</p>
                         </CardContent>
                     </Card>
                     <Card className="shadow-md">
