@@ -22,24 +22,24 @@ export function LoginForm() {
     if (!auth) return;
     setLoading(true);
 
-    try {
-      // In a real app, you would not `await` this and would rely on `onAuthStateChanged`
-      // For this demo, we await to provide immediate feedback on login failure.
-      await signInWithEmailAndPassword(auth, email, password);
-      // The AuthRedirect component will handle redirection.
-    } catch (error: any) {
-      console.error('Login failed:', error);
-      let description = 'Could not sign in. Please check your credentials and try again.';
-      if (error.code === 'auth/invalid-credential') {
-        description = 'Invalid email or password. Please try again.';
-      }
-      toast({
-        title: 'Login Failed',
-        description: description,
-        variant: 'destructive',
-      });
-      setLoading(false);
-    }
+    // The AuthRedirect component will handle redirection on success.
+    // The onAuthStateChanged listener will handle the user state.
+    // We only need to handle the error case here.
+    signInWithEmailAndPassword(auth, email, password)
+        .catch((error: any) => {
+            console.error('Login failed:', error);
+            let description = 'Could not sign in. Please check your credentials and try again.';
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                description = 'Invalid email or password. Please try again.';
+            }
+            toast({
+                title: 'Login Failed',
+                description: description,
+                variant: 'destructive',
+            });
+        }).finally(() => {
+            setLoading(false);
+        });
   };
 
   return (
