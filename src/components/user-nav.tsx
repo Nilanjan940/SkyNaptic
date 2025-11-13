@@ -12,12 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth, useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { UserProfile } from "@/lib/types";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { doc } from "firebase/firestore";
 import { Skeleton } from "./ui/skeleton";
+import Link from "next/link";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export function UserNav() {
   const router = useRouter();
@@ -76,14 +77,18 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <UserIcon className="mr-2 h-4 w-4" />
-            <span>Profile</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-          </DropdownMenuItem>
+          <Link href="/profile">
+            <DropdownMenuItem>
+              <UserIcon className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </DropdownMenuItem>
+          </Link>
+          <Link href="/settings">
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
