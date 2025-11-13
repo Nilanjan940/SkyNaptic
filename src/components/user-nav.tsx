@@ -19,7 +19,6 @@ import { useRouter } from "next/navigation";
 import { doc } from "firebase/firestore";
 import { Skeleton } from "./ui/skeleton";
 import Link from "next/link";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export function UserNav() {
   const router = useRouter();
@@ -49,9 +48,7 @@ export function UserNav() {
     return null;
   }
 
-  const roleKey = userProfile.role as keyof typeof PlaceHolderImages;
-  const roleAvatarData = PlaceHolderImages.find(p => p.id.includes(roleKey));
-  const avatar = userProfile.avatarUrl || roleAvatarData?.imageUrl || PlaceHolderImages[0].imageUrl;
+  const avatar = userProfile.avatarUrl;
 
   return (
     <DropdownMenu>
