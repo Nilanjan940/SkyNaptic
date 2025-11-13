@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { UserProfile } from '@/lib/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { textToSpeech } from '@/ai/flows/tts-flow';
 
@@ -30,6 +30,12 @@ export default function SettingsPage() {
   const { user: authUser } = useUser();
   const firestore = useFirestore();
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const userProfileRef = useMemoFirebase(
     () => (firestore && authUser ? doc(firestore, 'userProfiles', authUser.uid) : null),
@@ -145,6 +151,7 @@ export default function SettingsPage() {
           <h1 className="text-3xl font-bold font-headline">Settings</h1>
           
           {/* Appearance Settings */}
+          {isClient && (
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle>Appearance</CardTitle>
@@ -189,6 +196,7 @@ export default function SettingsPage() {
               </RadioGroup>
             </CardContent>
           </Card>
+          )}
 
           {/* Voice Assistant Settings */}
           <Card className="shadow-md">
