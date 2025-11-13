@@ -40,7 +40,14 @@ export function SignupForm() {
   };
 
   const onVerificationComplete = async () => {
-    if (!auth || !firestore) return;
+    if (!auth || !firestore) {
+      toast({
+        title: "Signup Failed",
+        description: "Firebase service is not ready. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    };
     setLoading(true);
 
     try {
@@ -56,6 +63,8 @@ export function SignupForm() {
         role: role,
       };
       const userDocRef = doc(firestore, "userProfiles", user.uid);
+      
+      // Use the non-blocking write function which has correct error handling
       setDocumentNonBlocking(userDocRef, userProfile, { merge: false });
       
       // 3. Store role and email for immediate UI updates
@@ -63,6 +72,7 @@ export function SignupForm() {
       localStorage.setItem("userEmail", email);
 
       // 4. Navigate to the correct dashboard
+      // This happens optimistically. If the write fails, the error listener will catch it.
       switch (role) {
         case "atc":
           router.push("/atc");
@@ -81,10 +91,10 @@ export function SignupForm() {
       }
       router.refresh();
     } catch (error) {
-       console.error("Signup failed:", error);
+       console.error("Anonymous sign-in failed:", error);
       toast({
         title: "Signup Failed",
-        description: "Could not create your account. Please try again.",
+        description: "Could not create a temporary user session. Please try again.",
         variant: "destructive",
       });
       setLoading(false);
