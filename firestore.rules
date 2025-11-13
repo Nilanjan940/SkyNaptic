@@ -69,8 +69,8 @@ service cloud.firestore {
      * @path /drones/{droneId}
      */
     match /drones/{droneId} {
-      // Allow read for authenticated users (including ATC)
-      allow get, list: if isAuthenticated();
+      // Allow public read access for map visualization
+      allow get, list: if true;
       allow create: if isDroneOperator();
       allow update: if isExistingDroneOperator();
       allow delete: if isExistingDroneOperator();
