@@ -94,7 +94,8 @@ export function SignupForm() {
       }
       router.refresh();
     } catch (error: any) {
-       console.error("Sign-up failed:", error);
+       // This catch block now only handles errors from createUserWithEmailAndPassword
+       // Firestore permission errors will be handled globally.
       toast({
         title: "Signup Failed",
         description: error.message || "Could not create your account. The email might already be in use.",
