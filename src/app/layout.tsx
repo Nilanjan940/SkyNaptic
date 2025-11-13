@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -5,6 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { ThemeToggle } from '@/components/theme-toggle';
 import Script from 'next/script';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { AuthRedirect } from '@/components/auth/auth-redirect';
 
 export const metadata: Metadata = {
   title: 'SkyNaptic',
@@ -31,6 +33,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProvider>
+            <AuthRedirect />
             {children}
             <Toaster />
             <ThemeToggle />

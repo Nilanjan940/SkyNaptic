@@ -2,27 +2,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import type { UserRole } from '@/lib/types';
-import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { useAuth } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export function LoginForm() {
-  const router = useRouter();
   const auth = useAuth();
-  const firestore = useFirestore();
   const { toast } = useToast();
 
   const [email, setEmail] = useState('');
@@ -31,49 +19,23 @@ export function LoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth || !firestore) return;
+    if (!auth) return;
     setLoading(true);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // Fetch user profile to get their role
-      const userDocRef = doc(firestore, 'userProfiles', user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (userDoc.exists()) {
-        const userProfile = userDoc.data();
-        const role = userProfile.role as UserRole;
-        
-        localStorage.setItem('userRole', role);
-        localStorage.setItem('userEmail', userProfile.email);
-
-        switch (role) {
-          case 'atc':
-            router.push('/atc');
-            break;
-          case 'pilot':
-            router.push('/pilot');
-            break;
-          case 'passenger':
-            router.push('/passenger');
-            break;
-          case 'drone-operator':
-            router.push('/drone');
-            break;
-          default:
-            router.push('/');
-        }
-        router.refresh();
-      } else {
-         throw new Error("User profile not found.");
-      }
+      // In a real app, you would not `await` this and would rely on `onAuthStateChanged`
+      // For this demo, we await to provide immediate feedback on login failure.
+      await signInWithEmailAndPassword(auth, email, password);
+      // The AuthRedirect component will handle redirection.
     } catch (error: any) {
       console.error('Login failed:', error);
+      let description = 'Could not sign in. Please check your credentials and try again.';
+      if (error.code === 'auth/invalid-credential') {
+        description = 'Invalid email or password. Please try again.';
+      }
       toast({
         title: 'Login Failed',
-        description: error.message || 'Could not sign in. Please check your credentials and try again.',
+        description: description,
         variant: 'destructive',
       });
       setLoading(false);
