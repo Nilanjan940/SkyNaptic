@@ -11,14 +11,6 @@
  * - /flights/{flightId}: Stores flight data. Publicly readable, writeable by authorized ATC users.
  * - /drones/{droneId}: Stores drone data. Publicly readable, writeable by the assigned drone operator.
  * - /alerts/{alertId}: Stores alert data. Publicly readable, writeable by authorized roles (not defined in this prototype).
- *
- * Key Security Decisions:
- * - User listing is explicitly denied for privacy.
- * - Public read access is granted to most data to facilitate visualization and data sharing.
- * - Write access is restricted based on role (ATC) or ownership (Drones).
- *
- * Denormalization for Authorization:
- * - The `drones` collection uses the `operatorId` field (which should store the user's UID) to link each drone to its operator's `userProfile`. This allows for performant ownership-based rules.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -27,6 +19,11 @@ service cloud.firestore {
     // Helper function to check if the user has the 'atc' role.
     function isATC() {
       return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'atc';
+    }
+
+    // Helper function to check if the user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
     // Helper function to check if the user is the operator of a drone.
@@ -68,23 +65,24 @@ service cloud.firestore {
     }
     
     /**
-     * @description Allows public read access to drone data, with write access restricted to the assigned operator.
+     * @description Allows authenticated read access to drone data, with write access restricted to the assigned operator.
      * @path /drones/{droneId}
      */
     match /drones/{droneId} {
-      allow get, list: if true;
+      // Allow read for authenticated users (including ATC)
+      allow get, list: if isAuthenticated();
       allow create: if isDroneOperator();
       allow update: if isExistingDroneOperator();
       allow delete: if isExistingDroneOperator();
     }
 
     /**
-     * @description Allows public read access to alert data, with write access restricted.
+     * @description Allows authenticated read access to alert data, with write access restricted.
      * @path /alerts/{alertId}
      */
     match /alerts/{alertId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Add role-based authorization for alert data modification.
+      allow get, list: if isAuthenticated();
+      allow create, update, delete: if isATC(); // Allow ATC to manage alerts
     }
   }
 }
