@@ -76,7 +76,7 @@ export function SignupForm() {
       localStorage.setItem("userEmail", email);
 
       // 4. Navigate to the correct dashboard (The AuthRedirect component will handle this, but we can push for faster navigation)
-      const targetPath = `/${role}`;
+      const targetPath = role === 'drone-operator' ? '/drone' : `/${role}`;
       router.push(targetPath);
       router.refresh();
 
