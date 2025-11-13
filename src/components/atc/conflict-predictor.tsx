@@ -1,12 +1,11 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ConflictAlert, Flight } from '@/lib/types';
-import { AlertTriangle, Bot, Loader2, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { AlertTriangle, Bot, CheckCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Badge } from '../ui/badge';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
@@ -18,46 +17,30 @@ type ConflictPredictorProps = {
 }
 
 export function ConflictPredictor({ alerts, setAlerts }: ConflictPredictorProps) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const firestore = useFirestore();
 
   const inFlightQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'flights'), where('status', '==', 'In-Flight')), [firestore]);
-  const { data: flights } = useCollection<Flight>(inFlightQuery);
+  const { data: flights, isLoading: flightsLoading } = useCollection<Flight>(inFlightQuery);
 
 
-  const handlePredict = async () => {
-    setLoading(true);
-    setAlerts([]);
+  useEffect(() => {
+    setLoading(flightsLoading);
+    if (flightsLoading || !flights) {
+        setAlerts([]);
+        return;
+    };
 
-    if (!flights || flights.length < 2) {
-      toast({
-        title: "Not Enough Data",
-        description: "Need at least two in-flight aircraft to predict conflicts.",
-      });
-      setLoading(false);
+    if (flights.length < 2) {
+      setAlerts([]);
       return;
     }
 
     try {
-      // Simulate processing time for a more realistic feel
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       const result = predictConflicts(flights);
-
-      if (result.conflictAlerts && result.conflictAlerts.length > 0) {
-        setAlerts(result.conflictAlerts);
-        toast({
-          title: "Potential Conflicts Detected!",
-          description: `${result.conflictAlerts.length} potential conflicts identified.`,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "No Conflicts Found",
-          description: "The airspace is clear of potential conflicts based on current data.",
-        });
-      }
+      setAlerts(result.conflictAlerts || []);
+      
     } catch (error: any) {
       console.error("Conflict prediction failed:", error);
       toast({
@@ -65,10 +48,10 @@ export function ConflictPredictor({ alerts, setAlerts }: ConflictPredictorProps)
         description: "Could not run the conflict prediction model.",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  };
+
+  }, [flights, flightsLoading, setAlerts, toast]);
+
 
   const getSeverityBadge = (severity: 'low' | 'medium' | 'high') => {
     switch (severity) {
@@ -84,16 +67,17 @@ export function ConflictPredictor({ alerts, setAlerts }: ConflictPredictorProps)
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary" />
-          <span>Conflict Prediction Engine</span>
+          <span>Live Conflict Analysis</span>
         </CardTitle>
         <CardDescription>
-          Use rule-based analysis of in-flight aircraft to predict potential conflicts.
+          Automatically analyzing airspace for potential conflicts in real-time.
         </CardDescription>
       </CardHeader>
       <CardContent className="min-h-[120px]">
         {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex flex-col items-center justify-center h-full text-center text-sm text-muted-foreground">
+             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+             <p className="mt-2">Analyzing Airspace...</p>
           </div>
         ) : alerts.length > 0 ? (
           <div className="space-y-4">
@@ -119,26 +103,13 @@ export function ConflictPredictor({ alerts, setAlerts }: ConflictPredictorProps)
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center text-center text-sm text-muted-foreground h-full p-4 bg-muted/50 rounded-lg">
-            <p>No conflicts detected. Run prediction to check for potential issues.</p>
+          <div className="flex flex-col items-center justify-center text-center text-sm text-muted-foreground h-full p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+            <CheckCircle className="w-8 h-8 mb-2 text-green-600" />
+            <p className="font-semibold text-green-700">Airspace Clear</p>
+            <p className="text-xs mt-1">No potential conflicts detected.</p>
           </div>
         )}
       </CardContent>
-      <CardFooter>
-        <Button onClick={handlePredict} disabled={loading || !flights || flights.length < 2} className="w-full font-semibold">
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Analyzing Airspace...
-            </>
-          ) : (
-            <>
-              <Zap className="mr-2 h-4 w-4" />
-              Run Conflict Prediction
-            </>
-          )}
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
