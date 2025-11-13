@@ -1,3 +1,4 @@
+
 export type UserRole = 'atc' | 'pilot' | 'passenger' | 'drone-operator';
 
 export type Flight = {
