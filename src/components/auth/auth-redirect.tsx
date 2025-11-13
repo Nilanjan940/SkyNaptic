@@ -30,7 +30,7 @@ export function AuthRedirect() {
       localStorage.setItem('userRole', role);
       localStorage.setItem('userEmail', userProfile.email);
       
-      const targetPath = `/${role}`;
+      const targetPath = role === 'drone-operator' ? '/drone' : `/${role}`;
       
       // Redirect if not already on their dashboard or a sub-page
       if (pathname !== targetPath && !pathname.startsWith('/profile') && !pathname.startsWith('/settings')) {
