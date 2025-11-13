@@ -98,6 +98,10 @@ const mapStyles = {
     light: []
 };
 
+// Convert knots to degrees per second (a rough approximation)
+// 1 knot = 1 nm/hr. 1 nm = 1/60 deg. 1 hr = 3600s.
+const KNOTS_TO_DPS = (1 / 60) / 3600;
+
 export function Map({ title, description, flights = [], drones = [] }: MapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const [apiKeyMissing, setApiKeyMissing] = useState(false);
@@ -123,6 +127,11 @@ export function Map({ title, description, flights = [], drones = [] }: MapProps)
                 mapId: 'SKYNAPTIC_MAP',
                 styles: theme === 'dark' ? mapStyles.dark : mapStyles.light,
             });
+            
+            const mapThemeColors = {
+                primary: 'hsl(var(--primary))',
+                accent: 'hsl(var(--accent))',
+            }
 
             flights.forEach(flight => {
                 const flightMarker = document.createElement('div');
@@ -137,6 +146,17 @@ export function Map({ title, description, flights = [], drones = [] }: MapProps)
                     position: { lat: flight.latitude, lng: flight.longitude },
                     content: flightMarker,
                     title: flight.flightNumber,
+                });
+
+                // Add flight path trail
+                const trailCoords = getTrailCoordinates(flight);
+                new google.maps.Polyline({
+                    path: trailCoords,
+                    geodesic: true,
+                    strokeColor: mapThemeColors.primary,
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    map: map,
                 });
             });
 
@@ -159,8 +179,34 @@ export function Map({ title, description, flights = [], drones = [] }: MapProps)
                     content: droneMarker,
                     title: drone.id,
                 });
+
+                 // Add drone path trail
+                const trailCoords = getTrailCoordinates(drone);
+                new google.maps.Polyline({
+                    path: trailCoords,
+                    geodesic: true,
+                    strokeColor: mapThemeColors.accent,
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    map: map,
+                });
             })
         };
+
+        const getTrailCoordinates = (vehicle: Flight | Drone) => {
+            const currentPos = { lat: vehicle.latitude, lng: vehicle.longitude };
+            const speedDps = vehicle.speed * KNOTS_TO_DPS;
+            const headingRad = ((vehicle.heading || 0) * Math.PI) / 180;
+
+            // Calculate how far the vehicle moved in the last 60 seconds
+            const trailDuration = 60; // seconds
+            const latOffset = speedDps * Math.cos(headingRad) * trailDuration;
+            const lonOffset = speedDps * Math.sin(headingRad) * trailDuration;
+
+            const prevPos = { lat: vehicle.latitude - latOffset, lng: vehicle.longitude - lonOffset };
+
+            return [prevPos, currentPos];
+        }
 
         if (window.google) {
             initMap();
