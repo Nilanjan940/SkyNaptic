@@ -12,12 +12,14 @@ import { seedDatabase } from "@/lib/seed";
 import { Button } from "./ui/button";
 import { PlusCircle } from "lucide-react";
 import { FlightFormDialog } from "./atc/flight-form";
+import { ConflictAlert } from "@/lib/types";
 
 export function AtcDashboard() {
     const router = useRouter();
     const [email, setEmail] = useState<string | null>(null);
     const firestore = useFirestore();
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [alerts, setAlerts] = useState<ConflictAlert[]>([]);
 
     useEffect(() => {
         const role = localStorage.getItem("userRole");
@@ -53,13 +55,13 @@ export function AtcDashboard() {
             </div>
             <div className="grid gap-6 xl:grid-cols-3">
                 <div className="xl:col-span-3">
-                    <AirspaceMap />
+                    <AirspaceMap alerts={alerts} />
                 </div>
                 <div className="xl:col-span-2">
                     <ActiveFlights />
                 </div>
                 <div className="flex flex-col gap-6">
-                    <ConflictPredictor />
+                    <ConflictPredictor alerts={alerts} setAlerts={setAlerts} />
                     <DroneActivity />
                 </div>
             </div>

@@ -1,11 +1,16 @@
+
 'use client';
 
 import { Map } from "@/components/map";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, query, where } from "firebase/firestore";
-import type { Drone, Flight } from "@/lib/types";
+import type { ConflictAlert, Drone, Flight } from "@/lib/types";
 
-export function AirspaceMap() {
+type AirspaceMapProps = {
+    alerts: ConflictAlert[];
+}
+
+export function AirspaceMap({ alerts }: AirspaceMapProps) {
     const firestore = useFirestore();
     
     const flightsQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'flights'), where('status', '==', 'In-Flight')), [firestore]);
@@ -20,6 +25,7 @@ export function AirspaceMap() {
             description="Real-time visualization of all aircraft, drones, and potential conflicts."
             flights={flights ?? []}
             drones={drones ?? []}
+            alerts={alerts}
         />
     )
 }

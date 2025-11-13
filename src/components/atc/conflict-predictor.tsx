@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -11,9 +12,13 @@ import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { predictConflicts } from '@/lib/conflict-detection';
 
-export function ConflictPredictor() {
+type ConflictPredictorProps = {
+    alerts: ConflictAlert[];
+    setAlerts: (alerts: ConflictAlert[]) => void;
+}
+
+export function ConflictPredictor({ alerts, setAlerts }: ConflictPredictorProps) {
   const [loading, setLoading] = useState(false);
-  const [alerts, setAlerts] = useState<ConflictAlert[]>([]);
   const { toast } = useToast();
   const firestore = useFirestore();
 

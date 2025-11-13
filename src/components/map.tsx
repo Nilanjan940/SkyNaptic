@@ -1,9 +1,10 @@
+
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { MapPin } from 'lucide-react';
-import { Flight, Drone } from '@/lib/types';
+import { Flight, Drone, ConflictAlert } from '@/lib/types';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 
@@ -12,6 +13,7 @@ type MapProps = {
     description: string;
     flights?: Flight[];
     drones?: Drone[];
+    alerts?: ConflictAlert[];
 };
 
 const mapStyles = {
@@ -102,7 +104,7 @@ const mapStyles = {
 // 1 knot = 1 nm/hr. 1 nm = 1/60 deg. 1 hr = 3600s.
 const KNOTS_TO_DPS = (1 / 60) / 3600;
 
-export function Map({ title, description, flights = [], drones = [] }: MapProps) {
+export function Map({ title, description, flights = [], drones = [], alerts = [] }: MapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const [apiKeyMissing, setApiKeyMissing] = useState(false);
     const { theme } = useTheme();
@@ -131,6 +133,7 @@ export function Map({ title, description, flights = [], drones = [] }: MapProps)
             const mapThemeColors = {
                 primary: 'hsl(var(--primary))',
                 accent: 'hsl(var(--accent))',
+                destructive: 'hsl(var(--destructive))',
             }
 
             flights.forEach(flight => {
@@ -190,7 +193,26 @@ export function Map({ title, description, flights = [], drones = [] }: MapProps)
                     strokeWeight: 2,
                     map: map,
                 });
-            })
+            });
+
+             alerts.forEach(alert => {
+                const alertMarker = document.createElement('div');
+                alertMarker.className = 'relative w-6 h-6';
+                alertMarker.innerHTML = `
+                    <div class="absolute inset-0 bg-destructive/50 rounded-full animate-ping"></div>
+                    <div class="relative w-full h-full bg-destructive rounded-full border-2 border-white flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-triangle">
+                            <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+                        </svg>
+                    </div>
+                `;
+                new AdvancedMarkerElement({
+                    map,
+                    position: { lat: alert.latitude, lng: alert.longitude },
+                    content: alertMarker,
+                    title: `Conflict: ${alert.flightIds.join(' & ')}`,
+                });
+            });
         };
 
         const getTrailCoordinates = (vehicle: Flight | Drone) => {
@@ -212,7 +234,7 @@ export function Map({ title, description, flights = [], drones = [] }: MapProps)
             initMap();
         }
 
-    }, [theme, flights, drones]);
+    }, [theme, flights, drones, alerts]);
 
     if (apiKeyMissing) {
         return (
