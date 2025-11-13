@@ -49,22 +49,11 @@ export default function ProfilePage() {
     fileInputRef.current?.click();
   }
 
-  const handleDeletePhoto = async () => {
+  const handleDeletePhoto = () => {
     if (!userProfileRef) return;
-
-    try {
-        await updateDocumentNonBlocking(userProfileRef, {
-            avatarUrl: deleteField()
-        });
-        toast({ title: 'Avatar Removed', description: 'Your profile picture has been removed.' });
-    } catch (error) {
-        console.error("Failed to delete avatar:", error);
-        toast({
-            variant: 'destructive',
-            title: 'Delete Failed',
-            description: 'Could not remove your profile picture. Please try again.',
-        });
-    }
+    // The non-blocking function will handle permission errors via the global error emitter.
+    updateDocumentNonBlocking(userProfileRef, { avatarUrl: deleteField() });
+    toast({ title: 'Avatar Removed', description: 'Your profile picture has been removed.' });
   }
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,27 +66,45 @@ export default function ProfilePage() {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = async () => {
-        const imageDataUri = reader.result as string;
-        const response = await uploadImage({ photoDataUri: imageDataUri });
+        try {
+            const imageDataUri = reader.result as string;
+            const response = await uploadImage({ photoDataUri: imageDataUri });
 
-        if (response.imageUrl) {
-          await setDocumentNonBlocking(userProfileRef, { avatarUrl: response.imageUrl }, { merge: true });
-          toast({ title: 'Avatar Updated', description: 'Your new profile picture has been saved.' });
-        } else {
-          throw new Error('Image upload failed to return a URL.');
+            if (response.imageUrl) {
+            // The non-blocking function handles errors, no try/catch needed here.
+            setDocumentNonBlocking(userProfileRef, { avatarUrl: response.imageUrl }, { merge: true });
+            toast({ title: 'Avatar Updated', description: 'Your new profile picture has been saved.' });
+            } else {
+            throw new Error('Image upload failed to return a URL.');
+            }
+        } catch (error) {
+            console.error("Failed during image processing or Firestore write setup:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Upload Failed',
+                description: 'Could not update your profile picture. Please try again.',
+            });
+        } finally {
+            setIsUploading(false);
         }
       };
       reader.onerror = (error) => {
-        throw error;
+        console.error("File reading error:", error);
+        toast({
+            variant: 'destructive',
+            title: 'File Error',
+            description: 'Could not read the selected file.',
+        });
+        setIsUploading(false);
       };
     } catch (error) {
-      console.error("Failed to upload image:", error);
+      // This top-level catch handles synchronous errors before the FileReader starts.
+      console.error("Failed to initiate image upload:", error);
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
-        description: 'Could not update your profile picture. Please try again.',
+        description: 'An unexpected error occurred. Please try again.',
       });
-    } finally {
       setIsUploading(false);
     }
   }
