@@ -20,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useFirestore, addDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase";
+import { useFirestore, setDocumentNonBlocking } from "@/firebase";
 import { Flight } from "@/lib/types";
 import { collection, doc } from "firebase/firestore";
 import { useEffect } from "react";
@@ -88,33 +88,28 @@ export function FlightForm({ flight, onFormSubmit }: FlightFormProps) {
   async function onSubmit(data: FlightFormValues) {
     if (!firestore) return;
 
-    try {
-        if (flight) {
-        // Update existing flight
-        const flightRef = doc(firestore, "flights", flight.id);
-        const flightData = { ...flight, ...data };
-        setDocumentNonBlocking(flightRef, flightData, { merge: true });
-        toast({ title: "Flight Updated", description: `Flight ${data.flightNumber} has been successfully updated.` });
-        } else {
-        // Create new flight
-        const newFlightData = {
-            ...data,
-            id: data.flightNumber.replace(/\s+/g, '-').toUpperCase(),
-            altitude: 0,
-            speed: 0,
-            heading: 0,
-            latitude: 0, // Should be set based on origin airport
-            longitude: 0, // Should be set based on origin airport
-        }
-        const flightRef = doc(firestore, 'flights', newFlightData.id);
-        setDocumentNonBlocking(flightRef, newFlightData, { merge: false });
-        toast({ title: "Flight Scheduled", description: `Flight ${data.flightNumber} has been added to the schedule.` });
-        }
-        onFormSubmit();
-    } catch (error) {
-        console.error("Error submitting flight form:", error);
-        toast({ title: "Submission Error", description: "Could not save the flight details.", variant: 'destructive' });
+    if (flight) {
+      // Update existing flight
+      const flightRef = doc(firestore, "flights", flight.id);
+      const flightData = { ...flight, ...data };
+      setDocumentNonBlocking(flightRef, flightData, { merge: true });
+      toast({ title: "Flight Updated", description: `Flight ${data.flightNumber} has been successfully updated.` });
+    } else {
+      // Create new flight
+      const newFlightData: Flight = {
+          ...data,
+          id: data.flightNumber.replace(/\s+/g, '-').toUpperCase(),
+          altitude: 0,
+          speed: 0,
+          heading: 0,
+          latitude: 0, // Should be set based on origin airport
+          longitude: 0, // Should be set based on origin airport
+      }
+      const flightRef = doc(firestore, 'flights', newFlightData.id);
+      setDocumentNonBlocking(flightRef, newFlightData, { merge: false });
+      toast({ title: "Flight Scheduled", description: `Flight ${data.flightNumber} has been added to the schedule.` });
     }
+    onFormSubmit();
   }
 
   return (

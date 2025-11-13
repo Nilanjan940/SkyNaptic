@@ -29,11 +29,13 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import { FlightForm, FlightFormDialog } from "./flight-form";
+import { FlightFormDialog } from "./flight-form";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export function ActiveFlights() {
   const firestore = useFirestore();
+  const { toast } = useToast();
   const flightsQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'flights')), [firestore]);
   const { data: flights, isLoading } = useCollection<Flight>(flightsQuery);
   const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
@@ -57,10 +59,11 @@ export function ActiveFlights() {
     setIsFormOpen(true);
   };
   
-  const handleDelete = (flightId: string) => {
+  const handleDelete = (flight: Flight) => {
     if (!firestore) return;
-    const flightRef = doc(firestore, 'flights', flightId);
+    const flightRef = doc(firestore, 'flights', flight.id);
     deleteDocumentNonBlocking(flightRef);
+    toast({ title: "Flight Deleted", description: `Flight ${flight.flightNumber} has been removed.` });
   };
   
   const handleDialogClose = (open: boolean) => {
@@ -148,7 +151,7 @@ export function ActiveFlights() {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(flight.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                              <AlertDialogAction onClick={() => handleDelete(flight)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
                           </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
