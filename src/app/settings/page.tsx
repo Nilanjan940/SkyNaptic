@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useTheme } from 'next-themes';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Sun, Moon, Laptop, BatteryWarning, Bell, Map, Scaling } from 'lucide-react';
+import { Sun, Moon, Laptop, BatteryWarning, Bell, Map, Scaling, Play, Loader2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
@@ -15,11 +15,21 @@ import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { UserProfile } from '@/lib/types';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { textToSpeech } from '@/ai/flows/tts-flow';
+
+const voices = [
+  { id: 'atlas', name: 'Atlas (Male)', model: 'Algenib' },
+  { id: 'nova', name: 'Nova (Female)', model: 'Achernar' },
+  { id: 'echo', name: 'Echo (Neutral)', model: 'Sirius' },
+];
+
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { user: authUser } = useUser();
   const firestore = useFirestore();
+  const [playingVoice, setPlayingVoice] = useState<string | null>(null);
 
   const userProfileRef = useMemoFirebase(
     () => (firestore && authUser ? doc(firestore, 'userProfiles', authUser.uid) : null),
@@ -33,6 +43,22 @@ export default function SettingsPage() {
     if (!role) return '';
     return role.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }
+
+  const handlePlayVoice = async (voice: { id: string, name: string, model: string }) => {
+    setPlayingVoice(voice.id);
+    try {
+      const response = await textToSpeech({ text: `Hello, I am the ${voice.name} assistant.`, voice: voice.model });
+      if (response && response.media) {
+        const audio = new Audio(response.media);
+        audio.play();
+        audio.onended = () => setPlayingVoice(null);
+      }
+    } catch (error) {
+      console.error("Failed to generate speech", error);
+      setPlayingVoice(null);
+    }
+  }
+
 
   const renderRoleSpecificSettings = () => {
     if (!userProfile) return null;
@@ -181,17 +207,17 @@ export default function SettingsPage() {
                     <Switch id="voice-enable" />
                 </div>
                  <div className="space-y-2">
-                    <Label htmlFor="voice-select">Assistant Voice</Label>
-                    <Select defaultValue="atlas">
-                        <SelectTrigger id="voice-select">
-                            <SelectValue placeholder="Select a voice" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="atlas">Atlas (Male)</SelectItem>
-                            <SelectItem value="nova">Nova (Female)</SelectItem>
-                            <SelectItem value="echo">Echo (Neutral)</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <Label>Assistant Voice</Label>
+                     <div className="space-y-2">
+                        {voices.map(voice => (
+                            <div key={voice.id} className="flex items-center justify-between p-3 rounded-lg border">
+                                <span>{voice.name}</span>
+                                <Button size="icon" variant="ghost" onClick={() => handlePlayVoice(voice)} disabled={playingVoice !== null}>
+                                    {playingVoice === voice.id ? <Loader2 className="h-5 w-5 animate-spin" /> : <Play className="h-5 w-5" />}
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
                  </div>
             </CardContent>
           </Card>
