@@ -17,10 +17,9 @@ import type { UserRole } from "@/lib/types";
 import { VerifyIdentity } from "./verify-identity";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth, useFirestore, setDocumentNonBlocking } from "@/firebase";
-import { signInAnonymously } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
-
 
 export function SignupForm() {
   const router = useRouter();
@@ -31,12 +30,17 @@ export function SignupForm() {
   const [role, setRole] = useState<UserRole>("passenger");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    setStep(2); // Move to verification step
+    if (role === 'atc' || role === 'pilot' || role === 'drone-operator') {
+      setStep(2); // Move to verification step for regulated roles
+    } else {
+      onVerificationComplete(); // Skip verification for passengers
+    }
   };
 
   const onVerificationComplete = async () => {
@@ -51,8 +55,8 @@ export function SignupForm() {
     setLoading(true);
 
     try {
-      // 1. Sign in the user anonymously to get a UID
-      const userCredential = await signInAnonymously(auth);
+      // 1. Create the user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
       // 2. Create the user's profile in Firestore
@@ -72,7 +76,6 @@ export function SignupForm() {
       localStorage.setItem("userEmail", email);
 
       // 4. Navigate to the correct dashboard
-      // This happens optimistically. If the write fails, the error listener will catch it.
       switch (role) {
         case "atc":
           router.push("/atc");
@@ -90,11 +93,11 @@ export function SignupForm() {
           router.push("/");
       }
       router.refresh();
-    } catch (error) {
-       console.error("Anonymous sign-in failed:", error);
+    } catch (error: any) {
+       console.error("Sign-up failed:", error);
       toast({
         title: "Signup Failed",
-        description: "Could not create a temporary user session. Please try again.",
+        description: error.message || "Could not create your account. The email might already be in use.",
         variant: "destructive",
       });
       setLoading(false);
@@ -137,7 +140,14 @@ export function SignupForm() {
                       </div>
                       <div className="grid gap-2">
                         <Label htmlFor="password-signup">Password</Label>
-                        <Input id="password-signup" type="password" required />
+                        <Input 
+                          id="password-signup" 
+                          type="password"
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required 
+                        />
                       </div>
                       <div className="grid gap-2">
                         <Label htmlFor="role-signup">I am a...</Label>
@@ -153,7 +163,9 @@ export function SignupForm() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button type="submit" className="w-full mt-4">Create Account & Verify</Button>
+                      <Button type="submit" className="w-full mt-4">
+                        {role === 'passenger' ? 'Create Account' : 'Create Account & Verify'}
+                      </Button>
                     </form>
                 </motion.div>
             )}
@@ -165,7 +177,7 @@ export function SignupForm() {
                     transition={{ ease: 'easeInOut' }}
                     className="h-full w-full absolute"
                 >
-                    <VerifyIdentity onVerificationComplete={onVerificationComplete} />
+                    <VerifyIdentity onVerificationComplete={onVerificationComplete} loading={loading}/>
                 </motion.div>
             )}
         </AnimatePresence>

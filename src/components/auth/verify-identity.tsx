@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
@@ -9,9 +10,10 @@ import { motion } from "framer-motion";
 
 type VerifyIdentityProps = {
     onVerificationComplete: () => void;
+    loading: boolean;
 };
 
-export function VerifyIdentity({ onVerificationComplete }: VerifyIdentityProps) {
+export function VerifyIdentity({ onVerificationComplete, loading }: VerifyIdentityProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [hasCameraPermission, setHasCameraPermission] = useState(true);
     const [isVerifying, setIsVerifying] = useState(false);
@@ -59,8 +61,7 @@ export function VerifyIdentity({ onVerificationComplete }: VerifyIdentityProps) 
 
         if (isSuccess) {
             setVerificationStatus('success');
-             await new Promise(resolve => setTimeout(resolve, 1500));
-            onVerificationComplete();
+            // Don't call onVerificationComplete immediately, wait for user to see success
         } else {
             setVerificationStatus('failed');
             toast({
@@ -68,8 +69,8 @@ export function VerifyIdentity({ onVerificationComplete }: VerifyIdentityProps) 
                 title: 'Verification Failed',
                 description: 'Could not verify your ID. Please try again.',
             });
+             setIsVerifying(false);
         }
-        setIsVerifying(false);
     };
 
     return (
@@ -94,37 +95,31 @@ export function VerifyIdentity({ onVerificationComplete }: VerifyIdentityProps) 
                 )}
             </div>
 
-            <div className="w-full mt-4 h-16">
+            <div className="w-full mt-4 h-24 flex flex-col justify-center">
             {verificationStatus === 'idle' && (
                 <Button onClick={handleVerify} disabled={isVerifying || !hasCameraPermission} className="w-full">
-                    {isVerifying ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Verifying...
-                        </>
-                    ) : (
-                        <>
-                            <Camera className="mr-2 h-4 w-4" />
-                            Verify ID
-                        </>
-                    )}
+                    <Camera className="mr-2 h-4 w-4" />
+                    Verify ID
                 </Button>
             )}
-
-            {verificationStatus === 'verifying' && (
+             {verificationStatus === 'verifying' && (
                  <div className="flex flex-col items-center justify-center text-center text-sm text-primary">
                     <Loader2 className="h-8 w-8 animate-spin" />
                     <p className="mt-2 font-semibold">Analyzing ID...</p>
                  </div>
             )}
              {verificationStatus === 'success' && (
-                <motion.div initial={{scale: 0.5, opacity: 0}} animate={{scale: 1, opacity: 1}} className="flex flex-col items-center justify-center text-center text-sm text-green-600">
-                    <ShieldCheck className="h-8 w-8" />
-                    <p className="mt-2 font-semibold">Verification Complete!</p>
-                </motion.div>
+                <div className="w-full space-y-4 text-center">
+                    <motion.div initial={{scale: 0.5, opacity: 0}} animate={{scale: 1, opacity: 1}} className="flex flex-col items-center justify-center text-center text-sm text-green-600">
+                        <ShieldCheck className="h-8 w-8" />
+                        <p className="mt-2 font-semibold">Verification Complete!</p>
+                    </motion.div>
+                    <Button onClick={onVerificationComplete} disabled={loading} className="w-full">
+                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Continue to Dashboard"}
+                    </Button>
+                </div>
             )}
-
-             {verificationStatus === 'failed' && (
+            {verificationStatus === 'failed' && (
                  <div className="w-full space-y-4">
                     <Alert variant="destructive" className="text-center">
                         <AlertTitle>Verification Failed</AlertTitle>

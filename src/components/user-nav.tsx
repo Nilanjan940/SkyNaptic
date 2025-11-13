@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -45,16 +46,12 @@ export function UserNav() {
   }
   
   if (!authUser || !userProfile) {
-     // This can happen briefly during logout or if profile creation failed.
-     // Silently fail or redirect if needed.
     return null;
   }
 
   const roleKey = userProfile.role as keyof typeof PlaceHolderImages;
-  const avatarData = PlaceHolderImages.find(p => p.id.includes(roleKey));
-  const avatar = avatarData?.imageUrl || PlaceHolderImages[0].imageUrl;
-
-  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace('-', ' ');
+  const roleAvatarData = PlaceHolderImages.find(p => p.id.includes(roleKey));
+  const avatar = userProfile.avatarUrl || roleAvatarData?.imageUrl || PlaceHolderImages[0].imageUrl;
 
   return (
     <DropdownMenu>

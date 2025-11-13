@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -14,9 +15,9 @@ import {
 } from '@/components/ui/select';
 import type { UserRole } from '@/lib/types';
 import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { signInAnonymously } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export function LoginForm() {
   const router = useRouter();
@@ -24,8 +25,8 @@ export function LoginForm() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const [role, setRole] = useState<UserRole>('atc');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('password'); // Default for demo
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -34,45 +35,45 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const userCredential = await signInAnonymously(auth);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      const userProfile = {
-        id: user.uid,
-        email: email || `${role}@skynaptic.com`,
-        name: email.split('@')[0] || role,
-        role: role,
-      };
-      
+      // Fetch user profile to get their role
       const userDocRef = doc(firestore, 'userProfiles', user.uid);
-      // Use non-blocking write with enhanced error handling
-      setDocumentNonBlocking(userDocRef, userProfile, { merge: false });
-      
-      localStorage.setItem('userRole', role);
-      localStorage.setItem('userEmail', userProfile.email);
+      const userDoc = await getDoc(userDocRef);
 
-      switch (role) {
-        case 'atc':
-          router.push('/atc');
-          break;
-        case 'pilot':
-          router.push('/pilot');
-          break;
-        case 'passenger':
-          router.push('/passenger');
-          break;
-        case 'drone-operator':
-          router.push('/drone');
-          break;
-        default:
-          router.push('/');
+      if (userDoc.exists()) {
+        const userProfile = userDoc.data();
+        const role = userProfile.role as UserRole;
+        
+        localStorage.setItem('userRole', role);
+        localStorage.setItem('userEmail', userProfile.email);
+
+        switch (role) {
+          case 'atc':
+            router.push('/atc');
+            break;
+          case 'pilot':
+            router.push('/pilot');
+            break;
+          case 'passenger':
+            router.push('/passenger');
+            break;
+          case 'drone-operator':
+            router.push('/drone');
+            break;
+          default:
+            router.push('/');
+        }
+        router.refresh();
+      } else {
+         throw new Error("User profile not found.");
       }
-      router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
       toast({
         title: 'Login Failed',
-        description: 'Could not sign in. Please try again.',
+        description: error.message || 'Could not sign in. Please check your credentials and try again.',
         variant: 'destructive',
       });
       setLoading(false);
@@ -93,25 +94,14 @@ export function LoginForm() {
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="password">Password (simulation)</Label>
-        <Input id="password" type="password" defaultValue="password" required />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="role">Role</Label>
-        <Select
-          onValueChange={(value: UserRole) => setRole(value)}
-          defaultValue={role}
-        >
-          <SelectTrigger id="role">
-            <SelectValue placeholder="Select a role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="atc">Air Traffic Controller</SelectItem>
-            <SelectItem value="pilot">Pilot</SelectItem>
-            <SelectItem value="passenger">Passenger</SelectItem>
-            <SelectItem value="drone-operator">Drone Operator</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label htmlFor="password">Password</Label>
+        <Input 
+          id="password" 
+          type="password" 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required 
+        />
       </div>
       <Button type="submit" className="w-full mt-4" disabled={loading}>
         {loading ? 'Signing In...' : 'Sign In'}
