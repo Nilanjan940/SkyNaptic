@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,13 +9,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/
 import { Map, Pin, CloudSun, Send } from "lucide-react";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
+import { FlightPlanForm } from "./drone/flight-plan-form";
 
 export function DroneDashboard() {
     const router = useRouter();
     const [email, setEmail] = useState<string | null>(null);
+    const [isFormOpen, setIsFormOpen] = useState(false);
 
     useEffect(() => {
         const role = localStorage.getItem("userRole");
@@ -62,7 +62,7 @@ export function DroneDashboard() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Dialog>
+                    <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
                         <DialogTrigger asChild>
                              <Button size="lg" className="font-semibold">Request New Flight Plan</Button>
                         </DialogTrigger>
@@ -73,23 +73,7 @@ export function DroneDashboard() {
                                     Fill out the details below to submit a new flight plan for approval.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="drone-id">Drone ID</Label>
-                                    <Input id="drone-id" placeholder="e.g., DRN-001" />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="flight-path">Flight Path Description</Label>
-                                    <Textarea id="flight-path" placeholder="Describe the intended flight path, including waypoints and altitude." />
-                                </div>
-                                 <div className="grid gap-2">
-                                    <Label htmlFor="purpose">Purpose of Flight</Label>
-                                    <Input id="purpose" placeholder="e.g., Package Delivery, Site Inspection" />
-                                </div>
-                                <Button type="submit" className="w-full mt-2">
-                                    <Send className="mr-2 h-4 w-4" /> Submit for Approval
-                                </Button>
-                            </div>
+                           <FlightPlanForm onFormSubmit={() => setIsFormOpen(false)} />
                         </DialogContent>
                     </Dialog>
                 </div>
