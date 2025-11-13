@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collection, query } from "firebase/firestore";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
+import { collection, query, where } from "firebase/firestore";
 import type { Drone } from "@/lib/types";
-import { BatteryFull, BatteryLow, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Progress } from "../ui/progress";
 
 function DroneIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -41,7 +41,13 @@ function DroneIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export function DroneStatusList() {
     const firestore = useFirestore();
-    const dronesQuery = useMemoFirebase(() => firestore && query(collection(firestore, 'drones')), [firestore]);
+    const { user } = useUser();
+
+    const dronesQuery = useMemoFirebase(() => {
+        if (!firestore || !user) return null;
+        return query(collection(firestore, 'drones'), where('operatorId', '==', user.uid));
+    }, [firestore, user]);
+
     const { data: drones, isLoading } = useCollection<Drone>(dronesQuery);
     
     const getStatusVariant = (status: string) => {

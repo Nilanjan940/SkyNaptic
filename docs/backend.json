@@ -117,9 +117,9 @@
           "type": "string",
           "description": "Unique identifier for the drone."
         },
-        "operator": {
+        "operatorId": {
           "type": "string",
-          "description": "The operator of the drone."
+          "description": "The user ID of the operator of the drone."
         },
         "model": {
           "type": "string",
@@ -149,7 +149,7 @@
       },
       "required": [
         "id",
-        "operator",
+        "operatorId",
         "model",
         "status",
         "altitude",

@@ -19,7 +19,6 @@ export type Flight = {
 
 export type Drone = {
   id: string;
-  operator: string;
   operatorId: string;
   model: string;
   status: 'Grounded' | 'In-Flight' | 'Returning';
