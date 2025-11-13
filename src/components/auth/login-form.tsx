@@ -13,10 +13,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { UserRole } from '@/lib/types';
-import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { signInAnonymously } from 'firebase/auth';
+import { useAuth, useFirestore, setDocumentNonBlocking, initiateAnonymousSignIn } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { signInAnonymously } from 'firebase/auth';
 
 export function LoginForm() {
   const router = useRouter();
