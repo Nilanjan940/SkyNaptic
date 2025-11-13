@@ -75,33 +75,20 @@ export function SignupForm() {
       localStorage.setItem("userRole", role);
       localStorage.setItem("userEmail", email);
 
-      // 4. Navigate to the correct dashboard
-      switch (role) {
-        case "atc":
-          router.push("/atc");
-          break;
-        case "pilot":
-          router.push("/pilot");
-          break;
-        case "passenger":
-          router.push("/passenger");
-          break;
-        case "drone-operator":
-          router.push("/drone");
-          break;
-        default:
-          router.push("/");
-      }
+      // 4. Navigate to the correct dashboard (The AuthRedirect component will handle this, but we can push for faster navigation)
+      const targetPath = `/${role}`;
+      router.push(targetPath);
       router.refresh();
+
     } catch (error: any) {
-       // This catch block now only handles errors from createUserWithEmailAndPassword
+       // This catch block now only handles errors from createUserWithEmailAndPassword (e.g., email already in use)
        // Firestore permission errors will be handled globally.
       toast({
         title: "Signup Failed",
         description: error.message || "Could not create your account. The email might already be in use.",
         variant: "destructive",
       });
-      setLoading(false);
+      setLoading(false); // Only set loading false on auth error, success will navigate away
     }
   };
 
