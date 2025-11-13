@@ -18,7 +18,7 @@
  * - Write access is restricted based on role (ATC) or ownership (Drones).
  *
  * Denormalization for Authorization:
- * - The `drones` collection uses the `operator` field (which should store the user's UID) to link each drone to its operator's `userProfile`. This allows for performant ownership-based rules.
+ * - The `drones` collection uses the `operatorId` field (which should store the user's UID) to link each drone to its operator's `userProfile`. This allows for performant ownership-based rules.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -30,15 +30,15 @@ service cloud.firestore {
     }
 
     // Helper function to check if the user is the operator of a drone.
-    // It verifies that the incoming resource's operator field matches the user's UID.
+    // It verifies that the incoming resource's operatorId field matches the user's UID.
     function isDroneOperator() {
-        return request.resource.data.operator == request.auth.uid;
+        return request.resource.data.operatorId == request.auth.uid;
     }
     
     // Helper function to check if the user is the existing operator of a drone.
-    // It verifies that the existing resource's operator field matches the user's UID.
+    // It verifies that the existing resource's operatorId field matches the user's UID.
     function isExistingDroneOperator() {
-      return resource.data.operator == request.auth.uid;
+      return resource.data.operatorId == request.auth.uid;
     }
 
 
@@ -68,11 +68,11 @@ service cloud.firestore {
     }
     
     /**
-     * @description Allows public read access to drone data, with write access restricted to the assigned operator.
+     * @description Allows authenticated users to read drone data, with write access restricted to the assigned operator.
      * @path /drones/{droneId}
      */
     match /drones/{droneId} {
-      allow get, list: if true;
+      allow get, list: if request.auth != null;
       allow create: if isDroneOperator();
       allow update: if isExistingDroneOperator();
       allow delete: if isExistingDroneOperator();

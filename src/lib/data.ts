@@ -1,3 +1,4 @@
+
 import type { Flight, Drone } from './types';
 
 export const mockFlights: Flight[] = [
@@ -67,6 +68,7 @@ export const mockDrones: Drone[] = [
   {
     id: 'DRN-001',
     operator: 'Amazon Prime Air',
+    operatorId: 'amazon-prime-air',
     model: 'MK27-2',
     status: 'In-Flight',
     altitude: 300,
@@ -78,6 +80,7 @@ export const mockDrones: Drone[] = [
   {
     id: 'DRN-002',
     operator: 'Wing',
+    operatorId: 'wing',
     model: 'Hummingbird',
     status: 'In-Flight',
     altitude: 250,
@@ -89,6 +92,7 @@ export const mockDrones: Drone[] = [
   {
     id: 'DRN-003',
     operator: 'Zipline',
+    operatorId: 'zipline',
     model: 'Platform 2',
     status: 'Grounded',
     altitude: 0,
