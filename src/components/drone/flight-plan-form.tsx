@@ -99,7 +99,7 @@ export function FlightPlanForm({ onFormSubmit }: FlightPlanFormProps) {
         />
         <Button type="submit" className="w-full mt-2" disabled={form.formState.isSubmitting}>
           <Send className="mr-2 h-4 w-4" /> 
-          {form.form-state.isSubmitting ? "Submitting..." : "Submit for Approval"}
+          {form.formState.isSubmitting ? "Submitting..." : "Submit for Approval"}
         </Button>
       </form>
     </Form>
