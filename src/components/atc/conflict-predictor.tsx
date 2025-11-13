@@ -1,7 +1,5 @@
-
 'use client';
 
-import { predictPotentialAirspaceConflicts, PredictPotentialAirspaceConflictsInput } from '@/ai/flows/predict-potential-airspace-conflicts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +9,7 @@ import { useState } from 'react';
 import { Badge } from '../ui/badge';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
+import { predictConflicts } from '@/lib/conflict-detection';
 
 export function ConflictPredictor() {
   const [loading, setLoading] = useState(false);
@@ -36,19 +35,11 @@ export function ConflictPredictor() {
     }
 
     try {
-      const flightDataInput: PredictPotentialAirspaceConflictsInput = {
-        flightData: flights.map(f => ({
-            flightId: f.id,
-            latitude: f.latitude,
-            longitude: f.longitude,
-            altitude: f.altitude,
-            speed: f.speed,
-            heading: f.heading,
-            timestamp: new Date().toISOString(),
-          })),
-      };
+      // Simulate processing time for a more realistic feel
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const result = predictConflicts(flights);
 
-      const result = await predictPotentialAirspaceConflicts(flightDataInput);
       if (result.conflictAlerts && result.conflictAlerts.length > 0) {
         setAlerts(result.conflictAlerts);
         toast({
@@ -64,19 +55,11 @@ export function ConflictPredictor() {
       }
     } catch (error: any) {
       console.error("Conflict prediction failed:", error);
-      if (error.message && error.message.includes("503 Service Unavailable")) {
-        toast({
-          title: "AI Model Overloaded",
-          description: "The prediction service is currently busy. Please try again in a few moments.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Prediction Error",
-          description: "Could not run the conflict prediction model.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Prediction Error",
+        description: "Could not run the conflict prediction model.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -96,10 +79,10 @@ export function ConflictPredictor() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary" />
-          <span>AI Conflict Prediction</span>
+          <span>Conflict Prediction Engine</span>
         </CardTitle>
         <CardDescription>
-          Use AI to analyze in-flight aircraft and predict potential conflicts.
+          Use rule-based analysis of in-flight aircraft to predict potential conflicts.
         </CardDescription>
       </CardHeader>
       <CardContent className="min-h-[120px]">
@@ -118,13 +101,13 @@ export function ConflictPredictor() {
                         <Badge variant={getSeverityBadge(alert.severity)}>{alert.severity}</Badge>
                     </div>
                   <p className="text-sm text-muted-foreground">
-                    Flights: <span className="font-medium text-foreground">{alert.flightIds.join(', ')}</span>
+                    Flights: <span className="font-medium text-foreground">{alert.flightIds.join(' & ')}</span>
                   </p>
                   {alert.timeToImpact > 0 && <p className="text-sm text-muted-foreground">
-                    Time to Impact: <span className="font-medium text-foreground">{alert.timeToImpact}s</span>
+                    Time to Impact: <span className="font-medium text-foreground">{Math.round(alert.timeToImpact)}s</span>
                   </p>}
                    <p className="text-sm text-muted-foreground">
-                    Probability: <span className="font-medium text-foreground">{Math.round(alert.probability * 100)}%</span>
+                    Predicted Conflict Location: <span className="font-medium text-foreground">{alert.latitude.toFixed(2)}, {alert.longitude.toFixed(2)} at {alert.altitude} ft</span>
                   </p>
                 </div>
               </div>
