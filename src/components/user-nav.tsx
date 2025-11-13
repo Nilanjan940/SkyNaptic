@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth, useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { UserProfile } from "@/lib/types";
-import { LogOut, Settings, User as UserIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, Settings, User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { doc } from "firebase/firestore";
 import { Skeleton } from "./ui/skeleton";
@@ -71,6 +71,12 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <Link href={`/${userProfile.role}`}>
+            <DropdownMenuItem>
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              <span>Dashboard</span>
+            </DropdownMenuItem>
+          </Link>
           <Link href="/profile">
             <DropdownMenuItem>
               <UserIcon className="mr-2 h-4 w-4" />
