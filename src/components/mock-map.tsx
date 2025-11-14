@@ -15,9 +15,9 @@ export function MockMap() {
       />
        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-background/50 to-transparent">
         <div className="text-center p-4 rounded-lg bg-background/80 backdrop-blur-sm border">
-          <h3 className="font-semibold text-foreground">Google Maps API Key Missing</h3>
+          <h3 className="font-semibold text-foreground">Live Map Unavailable</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Please add your API key to view the live map.
+            Using mock data visualization.
           </p>
         </div>
       </div>
