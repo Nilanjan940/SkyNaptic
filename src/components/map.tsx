@@ -3,10 +3,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MapPin } from 'lucide-react';
 import { Flight, Drone, ConflictAlert } from '@/lib/types';
 import { useTheme } from 'next-themes';
-import Image from 'next/image';
+import { MockMap } from './mock-map';
+
 
 type MapProps = {
     title: string;
@@ -236,43 +236,18 @@ export function Map({ title, description, flights = [], drones = [], alerts = []
 
     }, [theme, flights, drones, alerts]);
 
-    if (apiKeyMissing) {
-        return (
-             <Card className="flex flex-col h-full">
-                <CardHeader>
-                    <CardTitle>{title}</CardTitle>
-                    <CardDescription>{description}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow p-0 rounded-b-lg overflow-hidden relative">
-                   <Image 
-                        src="https://picsum.photos/seed/map/1200/800"
-                        alt="A mock map view"
-                        fill
-                        className="object-cover"
-                        data-ai-hint="map satellite"
-                   />
-                   <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-                       <div className="bg-background/80 p-6 rounded-lg shadow-lg text-center backdrop-blur-sm">
-                            <MapPin className="w-12 h-12 mb-4 text-primary mx-auto" />
-                            <h3 className="font-semibold text-lg">Live Map is Offline</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Provide a Google Maps API key to see live data.
-                            </p>
-                       </div>
-                   </div>
-                </CardContent>
-            </Card>
-        )
-    }
-
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow p-0 rounded-b-lg overflow-hidden">
-                <div ref={mapRef} className="w-full h-full min-h-[400px]" />
+             <CardContent className="flex-grow p-0 rounded-b-lg overflow-hidden">
+                {apiKeyMissing ? (
+                   <MockMap />
+                ) : (
+                    <div ref={mapRef} className="w-full h-full min-h-[400px]" />
+                )}
             </CardContent>
         </Card>
     );
