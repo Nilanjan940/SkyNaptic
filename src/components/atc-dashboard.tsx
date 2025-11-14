@@ -53,14 +53,14 @@ export function AtcDashboard() {
                     Schedule New Flight
                 </Button>
             </div>
-            <div className="grid gap-6 xl:grid-cols-3">
-                <div className="xl:col-span-3">
+            <div className="grid gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-3">
                     <AirspaceMap alerts={alerts} />
                 </div>
-                <div className="xl:col-span-2">
+                <div className="lg:col-span-2">
                     <ActiveFlights />
                 </div>
-                <div className="flex flex-col gap-6">
+                <div className="space-y-6">
                     <ConflictPredictor alerts={alerts} setAlerts={setAlerts} />
                     <DroneActivity />
                 </div>
