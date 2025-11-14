@@ -78,7 +78,6 @@ export default function ProfilePage() {
             throw new Error('Image upload failed to return a URL.');
             }
         } catch (error) {
-            console.error("Failed during image processing or Firestore write setup:", error);
             toast({
                 variant: 'destructive',
                 title: 'Upload Failed',
@@ -89,7 +88,6 @@ export default function ProfilePage() {
         }
       };
       reader.onerror = (error) => {
-        console.error("File reading error:", error);
         toast({
             variant: 'destructive',
             title: 'File Error',
@@ -98,8 +96,6 @@ export default function ProfilePage() {
         setIsUploading(false);
       };
     } catch (error) {
-      // This top-level catch handles synchronous errors before the FileReader starts.
-      console.error("Failed to initiate image upload:", error);
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
